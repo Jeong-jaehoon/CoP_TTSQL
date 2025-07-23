@@ -5,268 +5,493 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CoP_TTSQL - Text to SQL AI Assistant</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         
+        :root {
+            --primary: #0F172A;
+            --secondary: #1E293B;
+            --accent: #3B82F6;
+            --accent-hover: #2563EB;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --gray-50: #F8FAFC;
+            --gray-100: #F1F5F9;
+            --gray-200: #E2E8F0;
+            --gray-300: #CBD5E1;
+            --gray-400: #94A3B8;
+            --gray-500: #64748B;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1E293B;
+            --gray-900: #0F172A;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius: 0.75rem;
+        }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f7fa;
-            color: #2c3e50;
-            line-height: 1.6;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.5;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1.5rem 0;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .logo-icon {
+            width: 2rem;
+            height: 2rem;
+            background: var(--accent);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
-            padding: 2rem 0;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-weight: 700;
+            font-size: 1.125rem;
         }
         
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.025em;
         }
         
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
+        .logo span {
+            font-size: 0.875rem;
+            color: var(--gray-400);
+            font-weight: 400;
         }
         
         .main-container {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
             display: grid;
-            grid-template-columns: 300px 1fr 300px;
+            grid-template-columns: 280px 1fr 280px;
             gap: 2rem;
+            min-height: calc(100vh - 5rem);
         }
         
         .sidebar {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
         
-        .sidebar h3 {
-            color: #667eea;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
+        .sidebar-section {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--gray-200);
+            background: var(--gray-50);
+        }
+        
+        .sidebar-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .sidebar-content {
+            padding: 1rem;
         }
         
         .schema-item {
-            margin-bottom: 1rem;
-            padding: 0.8rem;
-            background: #f8f9fa;
-            border-radius: 8px;
+            padding: 0.75rem;
+            border: 1px solid var(--gray-200);
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s ease;
+        }
+        
+        .schema-item:hover {
+            border-color: var(--accent);
+            background: var(--gray-50);
         }
         
         .table-name {
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
         }
         
         .column-list {
-            font-size: 0.9rem;
-            color: #6c757d;
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
         }
         
         .main-content {
             background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         
-        .input-section {
-            margin-bottom: 2rem;
+        .main-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--gray-200);
+            background: var(--gray-50);
+        }
+        
+        .main-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .main-subtitle {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+        }
+        
+        .main-body {
+            padding: 2rem;
+            flex: 1;
+        }
+        
+        .input-group {
+            margin-bottom: 1.5rem;
         }
         
         .input-label {
             display: block;
             margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #2c3e50;
+            font-weight: 500;
+            color: var(--gray-700);
+            font-size: 0.875rem;
         }
         
         .text-input {
             width: 100%;
-            padding: 1rem;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
+            padding: 0.875rem 1rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
             resize: vertical;
             min-height: 120px;
+            background: white;
         }
         
         .text-input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
         }
         
-        .submit-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .text-input::placeholder {
+            color: var(--gray-400);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 0.5rem;
             border: none;
-            padding: 1rem 2rem;
-            border-radius: 8px;
-            font-size: 1rem;
             cursor: pointer;
-            margin-top: 1rem;
-            transition: transform 0.2s;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            font-family: inherit;
         }
         
-        .submit-btn:hover {
-            transform: translateY(-2px);
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
         }
         
         .result-section {
+            display: none;
             margin-top: 2rem;
+            border-top: 1px solid var(--gray-200);
+            padding-top: 2rem;
+        }
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
         
         .result-title {
             font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 1rem;
+            color: var(--primary);
+            font-size: 0.875rem;
+        }
+        
+        .result-badge {
+            padding: 0.25rem 0.5rem;
+            background: var(--success);
+            color: white;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
         }
         
         .sql-output {
-            background: #2d3748;
-            color: #e2e8f0;
+            background: var(--gray-900);
+            color: var(--gray-100);
             padding: 1.5rem;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
             overflow-x: auto;
+            border: 1px solid var(--gray-800);
         }
         
-        .table-result {
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
+        .table-container {
+            border: 1px solid var(--gray-200);
+            border-radius: 0.5rem;
             overflow: hidden;
+            background: white;
         }
         
-        .table-result table {
+        .table-container table {
             width: 100%;
             border-collapse: collapse;
         }
         
-        .table-result th {
-            background: #f8f9fa;
-            padding: 1rem;
+        .table-container th {
+            background: var(--gray-50);
+            padding: 0.875rem 1rem;
             text-align: left;
-            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--gray-200);
         }
         
-        .table-result td {
-            padding: 1rem;
-            border-bottom: 1px solid #f1f3f4;
+        .table-container td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid var(--gray-100);
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+        
+        .table-container tr:last-child td {
+            border-bottom: none;
         }
         
         .example-item {
-            background: #f8f9fa;
-            border-radius: 8px;
             padding: 1rem;
-            margin-bottom: 1rem;
+            border: 1px solid var(--gray-200);
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.2s ease;
+            background: white;
         }
         
         .example-item:hover {
-            background: #e9ecef;
+            border-color: var(--accent);
+            background: var(--gray-50);
+            transform: translateY(-1px);
         }
         
         .example-query {
             font-weight: 500;
-            color: #2c3e50;
-            margin-bottom: 0.5rem;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
         }
         
         .example-desc {
-            font-size: 0.9rem;
-            color: #6c757d;
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            line-height: 1.4;
         }
         
         @media (max-width: 1024px) {
             .main-container {
                 grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 1.5rem 1rem;
+            }
+            
+            .header-content {
+                padding: 0 1rem;
+            }
+            
+            .main-body {
+                padding: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .logo h1 {
+                font-size: 1.25rem;
+            }
+            
+            .main-container {
+                padding: 1rem;
                 gap: 1rem;
+            }
+            
+            .main-body {
+                padding: 1rem;
             }
         }
     </style>
 </head>
 <body>
     <header class="header">
-        <h1>CoP_TTSQL</h1>
-        <p>자연어를 SQL 쿼리로 변환하는 AI 어시스턴트</p>
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">S</div>
+                <div>
+                    <h1>CoP_TTSQL</h1>
+                    <span>AI-Powered SQL Assistant</span>
+                </div>
+            </div>
+        </div>
     </header>
     
     <div class="main-container">
         <!-- 왼쪽 사이드바: 데이터베이스 스키마 -->
         <div class="sidebar">
-            <h3>📊 데이터베이스 스키마</h3>
-            <div class="schema-item">
-                <div class="table-name">employees</div>
-                <div class="column-list">id, name, department, salary, hire_date</div>
-            </div>
-            <div class="schema-item">
-                <div class="table-name">departments</div>
-                <div class="column-list">id, name, manager_id, budget</div>
-            </div>
-            <div class="schema-item">
-                <div class="table-name">projects</div>
-                <div class="column-list">id, name, start_date, end_date, budget</div>
+            <div class="sidebar-section">
+                <div class="sidebar-header">
+                    <div class="sidebar-title">Database Schema</div>
+                </div>
+                <div class="sidebar-content">
+                    <div class="schema-item">
+                        <div class="table-name">employees</div>
+                        <div class="column-list">id, name, department, salary, hire_date</div>
+                    </div>
+                    <div class="schema-item">
+                        <div class="table-name">departments</div>
+                        <div class="column-list">id, name, manager_id, budget</div>
+                    </div>
+                    <div class="schema-item">
+                        <div class="table-name">projects</div>
+                        <div class="column-list">id, name, start_date, end_date, budget</div>
+                    </div>
+                </div>
             </div>
         </div>
         
         <!-- 메인 콘텐츠 -->
         <div class="main-content">
-            <div class="input-section">
-                <label class="input-label">자연어로 질문을 입력하세요</label>
-                <textarea class="text-input" placeholder="예: 급여가 5000만원 이상인 직원들의 이름과 부서를 보여주세요"></textarea>
-                <button class="submit-btn" onclick="processQuery()">쿼리 생성</button>
+            <div class="main-header">
+                <div class="main-title">자연어 쿼리 생성기</div>
+                <div class="main-subtitle">일반 언어로 질문을 입력하면 SQL 쿼리로 변환해드립니다</div>
             </div>
             
-            <div class="result-section" style="display: none;" id="resultSection">
-                <div class="result-title">생성된 SQL 쿼리</div>
-                <div class="sql-output" id="sqlOutput"></div>
+            <div class="main-body">
+                <div class="input-group">
+                    <label class="input-label">질문을 입력하세요</label>
+                    <textarea class="text-input" placeholder="예: 급여가 5000만원 이상인 직원들의 이름과 부서를 보여주세요"></textarea>
+                    <button class="btn btn-primary" onclick="processQuery()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                        </svg>
+                        쿼리 생성
+                    </button>
+                </div>
                 
-                <div class="result-title">실행 결과</div>
-                <div class="table-result" id="tableResult">
-                    <table>
-                        <thead>
-                            <tr><th>이름</th><th>부서</th><th>급여</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>김철수</td><td>개발팀</td><td>55,000,000</td></tr>
-                            <tr><td>이영희</td><td>마케팅팀</td><td>52,000,000</td></tr>
-                        </tbody>
-                    </table>
+                <div class="result-section" id="resultSection">
+                    <div class="result-header">
+                        <div class="result-title">생성된 SQL</div>
+                        <div class="result-badge">SUCCESS</div>
+                    </div>
+                    <div class="sql-output" id="sqlOutput"></div>
+                    
+                    <div class="result-header">
+                        <div class="result-title">실행 결과</div>
+                    </div>
+                    <div class="table-container" id="tableResult">
+                        <table>
+                            <thead>
+                                <tr><th>이름</th><th>부서</th><th>급여</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>김철수</td><td>개발팀</td><td>55,000,000</td></tr>
+                                <tr><td>이영희</td><td>마케팅팀</td><td>52,000,000</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
         
         <!-- 오른쪽 사이드바: 예제 쿼리 -->
         <div class="sidebar">
-            <h3>💡 예제 쿼리</h3>
-            <div class="example-item" onclick="useExample('부서별 평균 급여를 보여주세요')">
-                <div class="example-query">부서별 평균 급여 조회</div>
-                <div class="example-desc">각 부서의 평균 급여를 계산합니다</div>
-            </div>
-            <div class="example-item" onclick="useExample('프로젝트 예산이 1억원 이상인 프로젝트 목록')">
-                <div class="example-query">고예산 프로젝트 조회</div>
-                <div class="example-desc">예산이 높은 프로젝트를 찾습니다</div>
-            </div>
-            <div class="example-item" onclick="useExample('2023년에 입사한 직원 수는?')">
-                <div class="example-query">특정 연도 신입사원 수</div>
-                <div class="example-desc">특정 기간의 채용 현황을 확인합니다</div>
+            <div class="sidebar-section">
+                <div class="sidebar-header">
+                    <div class="sidebar-title">Quick Examples</div>
+                </div>
+                <div class="sidebar-content">
+                    <div class="example-item" onclick="useExample('부서별 평균 급여를 보여주세요')">
+                        <div class="example-query">부서별 평균 급여 조회</div>
+                        <div class="example-desc">각 부서의 평균 급여를 계산합니다</div>
+                    </div>
+                    <div class="example-item" onclick="useExample('프로젝트 예산이 1억원 이상인 프로젝트 목록')">
+                        <div class="example-query">고예산 프로젝트 조회</div>
+                        <div class="example-desc">예산이 높은 프로젝트를 찾습니다</div>
+                    </div>
+                    <div class="example-item" onclick="useExample('2023년에 입사한 직원 수는?')">
+                        <div class="example-query">특정 연도 신입사원 수</div>
+                        <div class="example-desc">특정 기간의 채용 현황을 확인합니다</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
