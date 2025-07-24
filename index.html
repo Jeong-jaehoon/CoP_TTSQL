@@ -228,6 +228,64 @@
             color: var(--gray-400);
         }
         
+        .query-type-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-family: inherit;
+            background: white;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            height: 48px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1rem;
+            padding-right: 2.5rem;
+        }
+        
+        .query-type-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+        }
+        
+        .query-type-select:hover {
+            border-color: var(--accent);
+        }
+        
+        .query-type-select option {
+            padding: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .query-type-info {
+            margin-top: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 0.375rem;
+            transition: all 0.3s ease;
+        }
+        
+        .info-text {
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            line-height: 1.4;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .info-text::before {
+            content: "ℹ️";
+            font-size: 0.875rem;
+        }
+        
         .btn {
             display: inline-flex;
             align-items: center;
@@ -437,8 +495,22 @@
             
             <div class="main-body">
                 <div class="input-group">
+                    <label class="input-label">쿼리 타입 선택</label>
+                    <select class="query-type-select" id="queryType">
+                        <option value="sqlite">🗄️ SQLite (Cloudflare D1 실행)</option>
+                        <option value="hive">🏭 Hive SQL (쿼리만 생성)</option>
+                        <option value="hive-execute">⚡ Hive SQL (D1에서 시뮬레이션 실행)</option>
+                        <option value="sybase">🏢 Sybase SQL (쿼리만 생성)</option>
+                        <option value="sybase-execute">🔧 Sybase SQL (D1에서 시뮬레이션 실행)</option>
+                    </select>
+                    <div class="query-type-info" id="queryTypeInfo">
+                        <span class="info-text">SQLite 모드: 쿼리를 생성하고 실제 결과를 바로 확인할 수 있습니다.</span>
+                    </div>
+                </div>
+                
+                <div class="input-group">
                     <label class="input-label">질문을 입력하세요</label>
-                    <textarea class="text-input" placeholder="예: 급여가 5000만원 이상인 직원들의 이름과 부서를 보여주세요"></textarea>
+                    <textarea class="text-input" id="userInput" placeholder="예: 급여가 5000만원 이상인 직원들의 이름과 부서를 보여주세요"></textarea>
                     <button class="btn btn-primary" onclick="processQuery()">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
@@ -496,38 +568,346 @@
         </div>
     </div>
     
+    <script src="config.js"></script>
+    <script src="api.js"></script>
     <script>
-        function processQuery() {
-            const input = document.querySelector('.text-input').value;
+        // TTSQL API 인스턴스 생성
+        const ttsqlAPI = new TTSQLAPI();
+        
+        async function processQuery() {
+            const input = document.getElementById('userInput').value;
+            const queryType = document.getElementById('queryType').value;
+            
             if (!input.trim()) {
                 alert('질문을 입력해주세요.');
                 return;
             }
             
-            // 임시 SQL 생성 (실제로는 LLM API 호출)
-            const mockSQL = generateMockSQL(input);
-            document.getElementById('sqlOutput').textContent = mockSQL;
-            document.getElementById('resultSection').style.display = 'block';
-        }
-        
-        function generateMockSQL(input) {
-            // 간단한 키워드 매칭으로 임시 SQL 생성
-            if (input.includes('급여') && input.includes('이상')) {
-                return `SELECT name, department, salary 
-FROM employees 
-WHERE salary >= 50000000;`;
-            } else if (input.includes('부서별') && input.includes('평균')) {
-                return `SELECT department, AVG(salary) as avg_salary
-FROM employees 
-GROUP BY department;`;
-            } else {
-                return `SELECT * FROM employees LIMIT 10;`;
+            // 버튼 비활성화 및 로딩 표시
+            const button = document.querySelector('.btn-primary');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg> 생성 중...';
+            button.disabled = true;
+            
+            try {
+                // 먼저 Workers API 연결 테스트
+                await ttsqlAPI.testConnection();
+                
+                let result;
+                if (queryType === 'hive') {
+                    // Hive SQL 생성 (실행하지 않음)
+                    result = await ttsqlAPI.generateHiveSQL(input);
+                } else if (queryType === 'hive-execute') {
+                    // Hive SQL 생성 및 D1에서 시뮬레이션 실행
+                    result = await ttsqlAPI.generateAndExecuteHiveSQL(input);
+                } else if (queryType === 'sybase') {
+                    // Sybase SQL 생성 (실행하지 않음)
+                    result = await ttsqlAPI.generateSybaseSQL(input);
+                } else if (queryType === 'sybase-execute') {
+                    // Sybase SQL 생성 및 D1에서 시뮬레이션 실행
+                    result = await ttsqlAPI.generateAndExecuteSybaseSQL(input);
+                } else {
+                    // SQLite 생성 및 실행
+                    result = await ttsqlAPI.generateAndExecuteSQL(input);
+                }
+                
+                if (result.success) {
+                    // SQL 결과 표시
+                    document.getElementById('sqlOutput').textContent = result.sql;
+                    
+                    if (queryType === 'hive') {
+                        // Hive의 경우 메모만 표시
+                        displayHiveNote(result.note);
+                    } else if (queryType === 'hive-execute') {
+                        // Hive 시뮬레이션의 경우 실제 결과와 변환 정보 표시
+                        displayHiveSimulationResults(result);
+                    } else if (queryType === 'sybase') {
+                        // Sybase의 경우 메모만 표시
+                        displaySybaseNote(result.note);
+                    } else if (queryType === 'sybase-execute') {
+                        // Sybase 시뮬레이션의 경우 실제 결과와 변환 정보 표시
+                        displaySybaseSimulationResults(result);
+                    } else {
+                        // SQLite의 경우 실제 데이터베이스 결과 표시
+                        displayResults(result.data);
+                    }
+                    
+                    // 결과 섹션 표시
+                    document.getElementById('resultSection').style.display = 'block';
+                    
+                    // 성공 배지 표시
+                    document.querySelector('.result-badge').textContent = 'SUCCESS';
+                    document.querySelector('.result-badge').style.background = 'var(--success)';
+                } else {
+                    // 오류 처리
+                    document.getElementById('sqlOutput').textContent = `오류: ${result.error}`;
+                    document.getElementById('resultSection').style.display = 'block';
+                    
+                    // 오류 배지 표시
+                    document.querySelector('.result-badge').textContent = 'ERROR';
+                    document.querySelector('.result-badge').style.background = 'var(--danger)';
+                }
+                
+            } catch (error) {
+                console.error('처리 중 오류 발생:', error);
+                
+                // 오류 정보를 화면에 표시
+                document.getElementById('sqlOutput').textContent = `오류 발생:\n${error.message}`;
+                document.getElementById('resultSection').style.display = 'block';
+                document.querySelector('.result-badge').textContent = 'ERROR';
+                document.querySelector('.result-badge').style.background = 'var(--danger)';
+                
+                // 상세 오류도 콘솔에 표시
+                if (error.stack) {
+                    console.error('Error stack:', error.stack);
+                }
+            } finally {
+                // 버튼 복원
+                button.innerHTML = originalText;
+                button.disabled = false;
             }
         }
         
-        function useExample(exampleText) {
-            document.querySelector('.text-input').value = exampleText;
+        function displayResults(data) {
+            const tableResult = document.getElementById('tableResult');
+            
+            if (!data || data.length === 0) {
+                tableResult.innerHTML = '<p style="padding: 1rem; color: var(--gray-500);">결과가 없습니다.</p>';
+                return;
+            }
+            
+            // 테이블 헤더 생성
+            const columns = Object.keys(data[0]);
+            let tableHTML = '<table><thead><tr>';
+            columns.forEach(col => {
+                tableHTML += `<th>${col}</th>`;
+            });
+            tableHTML += '</tr></thead><tbody>';
+            
+            // 테이블 데이터 생성
+            data.forEach(row => {
+                tableHTML += '<tr>';
+                columns.forEach(col => {
+                    tableHTML += `<td>${row[col] || ''}</td>`;
+                });
+                tableHTML += '</tr>';
+            });
+            
+            tableHTML += '</tbody></table>';
+            tableResult.innerHTML = tableHTML;
         }
+        
+        function displayHiveNote(note) {
+            const tableResult = document.getElementById('tableResult');
+            tableResult.innerHTML = `
+                <div style="padding: 2rem; text-align: center; color: var(--gray-600);">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 1rem;">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                    <h3 style="margin-bottom: 0.5rem; color: var(--primary);">Hive SQL 생성 완료</h3>
+                    <p style="margin: 0; font-size: 0.875rem;">${note}</p>
+                    <p style="margin-top: 1rem; font-size: 0.75rem; color: var(--gray-500);">
+                        생성된 Hive SQL을 복사해서 실제 Hive 클러스터에서 실행하세요.
+                    </p>
+                </div>
+            `;
+        }
+        
+        function displayHiveSimulationResults(result) {
+            const tableResult = document.getElementById('tableResult');
+            
+            // 실제 데이터 테이블 생성
+            let tableHTML = '';
+            if (result.data && result.data.length > 0) {
+                const columns = Object.keys(result.data[0]);
+                tableHTML = '<table><thead><tr>';
+                columns.forEach(col => {
+                    tableHTML += `<th>${col}</th>`;
+                });
+                tableHTML += '</tr></thead><tbody>';
+                
+                result.data.forEach(row => {
+                    tableHTML += '<tr>';
+                    columns.forEach(col => {
+                        tableHTML += `<td>${row[col] || ''}</td>`;
+                    });
+                    tableHTML += '</tr>';
+                });
+                
+                tableHTML += '</tbody></table>';
+            }
+            
+            // 시뮬레이션 정보와 함께 표시
+            tableResult.innerHTML = `
+                <div style="margin-bottom: 1.5rem; padding: 1rem; background: rgb(254 249 195); border: 1px solid rgb(251 191 36); border-radius: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <span style="font-size: 1rem;">⚡</span>
+                        <strong style="color: var(--primary);">Hive 시뮬레이션 실행 완료</strong>
+                    </div>
+                    <p style="margin: 0; font-size: 0.75rem; color: var(--gray-600);">
+                        ${result.note}
+                    </p>
+                    ${result.convertedSQL ? `
+                        <details style="margin-top: 0.75rem;">
+                            <summary style="cursor: pointer; font-size: 0.75rem; color: var(--gray-500);">변환된 SQLite 쿼리 보기</summary>
+                            <code style="display: block; margin-top: 0.5rem; padding: 0.5rem; background: white; border-radius: 0.25rem; font-size: 0.75rem; word-break: break-all;">
+                                ${result.convertedSQL}
+                            </code>
+                        </details>
+                    ` : ''}
+                    <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--gray-500);">
+                        실행 시간: ${result.executionTime}ms
+                    </div>
+                </div>
+                ${tableHTML}
+            `;
+        }
+        
+        function displaySybaseNote(note) {
+            const tableResult = document.getElementById('tableResult');
+            tableResult.innerHTML = `
+                <div style="padding: 2rem; text-align: center; color: var(--gray-600);">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 1rem;">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                    <h3 style="margin-bottom: 0.5rem; color: var(--primary);">Sybase SQL 생성 완료</h3>
+                    <p style="margin: 0; font-size: 0.875rem;">${note}</p>
+                    <p style="margin-top: 1rem; font-size: 0.75rem; color: var(--gray-500);">
+                        생성된 Sybase SQL을 복사해서 실제 Sybase 서버에서 실행하세요.
+                    </p>
+                </div>
+            `;
+        }
+        
+        function displaySybaseSimulationResults(result) {
+            const tableResult = document.getElementById('tableResult');
+            
+            // 실제 데이터 테이블 생성
+            let tableHTML = '';
+            if (result.data && result.data.length > 0) {
+                const columns = Object.keys(result.data[0]);
+                tableHTML = '<table><thead><tr>';
+                columns.forEach(col => {
+                    tableHTML += `<th>${col}</th>`;
+                });
+                tableHTML += '</tr></thead><tbody>';
+                
+                result.data.forEach(row => {
+                    tableHTML += '<tr>';
+                    columns.forEach(col => {
+                        tableHTML += `<td>${row[col] || ''}</td>`;
+                    });
+                    tableHTML += '</tr>';
+                });
+                
+                tableHTML += '</tbody></table>';
+            }
+            
+            // 시뮬레이션 정보와 함께 표시
+            tableResult.innerHTML = `
+                <div style="margin-bottom: 1.5rem; padding: 1rem; background: rgb(245 245 255); border: 1px solid rgb(99 102 241); border-radius: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <span style="font-size: 1rem;">🔧</span>
+                        <strong style="color: var(--primary);">Sybase 시뮬레이션 실행 완료</strong>
+                    </div>
+                    <p style="margin: 0; font-size: 0.75rem; color: var(--gray-600);">
+                        ${result.note}
+                    </p>
+                    ${result.convertedSQL ? `
+                        <details style="margin-top: 0.75rem;">
+                            <summary style="cursor: pointer; font-size: 0.75rem; color: var(--gray-500);">변환된 SQLite 쿼리 보기</summary>
+                            <code style="display: block; margin-top: 0.5rem; padding: 0.5rem; background: white; border-radius: 0.25rem; font-size: 0.75rem; word-break: break-all;">
+                                ${result.convertedSQL}
+                            </code>
+                        </details>
+                    ` : ''}
+                    <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--gray-500);">
+                        실행 시간: ${result.executionTime}ms
+                    </div>
+                </div>
+                ${tableHTML}
+            `;
+        }
+        
+        function useExample(exampleText) {
+            document.getElementById('userInput').value = exampleText;
+        }
+        
+        // 쿼리 타입 변경 시 정보 업데이트
+        function updateQueryTypeInfo() {
+            const queryType = document.getElementById('queryType').value;
+            const infoElement = document.getElementById('queryTypeInfo');
+            const infoText = infoElement.querySelector('.info-text');
+            const button = document.querySelector('.btn-primary');
+            
+            if (queryType === 'hive') {
+                infoText.textContent = 'Hive SQL 모드: 회사 Hive 클러스터용 쿼리를 생성합니다. (실행되지 않음)';
+                infoElement.style.background = 'rgb(255 251 235)';
+                infoElement.style.borderColor = 'rgb(252 211 77)';
+                button.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                    Hive SQL 생성
+                `;
+            } else if (queryType === 'hive-execute') {
+                infoText.textContent = 'Hive 시뮬레이션 모드: Hive SQL을 생성하고 SQLite로 변환하여 D1에서 실행합니다.';
+                infoElement.style.background = 'rgb(240 253 244)';
+                infoElement.style.borderColor = 'rgb(34 197 94)';
+                button.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                    Hive 시뮬레이션 실행
+                `;
+            } else if (queryType === 'sybase') {
+                infoText.textContent = 'Sybase SQL 모드: 기업용 Sybase 서버 쿼리를 생성합니다. (실행되지 않음)';
+                infoElement.style.background = 'rgb(254 242 242)';
+                infoElement.style.borderColor = 'rgb(239 68 68)';
+                button.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                    Sybase SQL 생성
+                `;
+            } else if (queryType === 'sybase-execute') {
+                infoText.textContent = 'Sybase 시뮬레이션 모드: Sybase SQL을 생성하고 SQLite로 변환하여 D1에서 실행합니다.';
+                infoElement.style.background = 'rgb(245 245 255)';
+                infoElement.style.borderColor = 'rgb(99 102 241)';
+                button.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                    Sybase 시뮬레이션 실행
+                `;
+            } else {
+                infoText.textContent = 'SQLite 모드: 쿼리를 생성하고 실제 결과를 바로 확인할 수 있습니다.';
+                infoElement.style.background = 'var(--gray-50)';
+                infoElement.style.borderColor = 'var(--gray-200)';
+                button.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                    쿼리 생성 & 실행
+                `;
+            }
+        }
+
+        // 엔터 키로 쿼리 실행 및 이벤트 리스너 설정
+        document.addEventListener('DOMContentLoaded', function() {
+            // 쿼리 타입 변경 이벤트
+            document.getElementById('queryType').addEventListener('change', updateQueryTypeInfo);
+            
+            // 엔터 키 이벤트
+            document.getElementById('userInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    processQuery();
+                }
+            });
+            
+            // 초기 정보 표시
+            updateQueryTypeInfo();
+        });
     </script>
 </body>
 </html>

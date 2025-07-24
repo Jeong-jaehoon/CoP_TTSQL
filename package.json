@@ -1,0 +1,16 @@
+{
+  "name": "ttsql-api",
+  "version": "1.0.0",
+  "description": "Text-to-SQL API with Cloudflare Workers and D1",
+  "main": "src/worker.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --env production"
+  },
+  "keywords": ["text-to-sql", "cloudflare", "workers", "d1"],
+  "author": "brackdog1@gmail.com",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^4.25.1"
+  }
+}
