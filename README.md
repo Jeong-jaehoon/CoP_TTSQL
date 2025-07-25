@@ -3,55 +3,28 @@
 ## 🔄 시스템 작동 Flow
 
 ```mermaid
-graph TB
-    subgraph "🌐 Client (Browser)"
-        A[사용자 자연어 입력] --> B[쿼리 타입 선택]
-        B --> C[API 요청 전송]
-        H[결과 화면 출력] --> I[테이블 형태 표시]
-    end
+graph LR
+    A[자연어 입력] --> B[Cloudflare Workers]
+    B --> C[ChatGPT API]
+    C --> B
+    B --> D{쿼리 타입}
+    D -->|SQLite/시뮬레이션| E[D1 Database]
+    D -->|Hive/Sybase| F[쿼리 반환]
+    E --> G[실행 결과]
+    F --> G
+    G --> H[클라이언트 화면]
     
-    subgraph "☁️ Cloudflare Workers"
-        C --> D[worker.js 요청 처리]
-        D --> E[OpenAI ChatGPT API 호출]
-        E --> F[SQL 쿼리 생성]
-        F --> G{실행 모드?}
-        
-        G -->|SQLite/시뮬레이션| J[D1 Database 실행]
-        G -->|Hive/Sybase 원본| K[쿼리만 반환]
-        
-        J --> L[실행 결과 + 쿼리]
-        K --> M[생성된 쿼리만]
-        
-        L --> H
-        M --> H
-    end
-    
-    subgraph "🤖 OpenAI API"
-        E -.->|env.OPENAI_API_KEY| N[GPT-3.5-turbo]
-        N -.-> F
-    end
-    
-    subgraph "🗄️ Cloudflare D1"
-        J -.-> O[SQLite Database]
-        O -.-> P[employees, departments, projects]
-        P -.-> J
-    end
-    
-    classDef client fill:#e1f5fe
-    classDef worker fill:#f3e5f5
-    classDef ai fill:#fff3e0
-    classDef db fill:#e8f5e8
-    
-    class A,B,C,H,I client
-    class D,E,F,G,J,K,L,M worker
-    class N ai
-    class O,P db
+    style A fill:#e3f2fd
+    style B fill:#f3e5f5  
+    style C fill:#fff3e0
+    style E fill:#e8f5e8
+    style H fill:#e3f2fd
 ```
 
-### 🔐 보안 Flow
-- **API 키**: 서버 환경변수로 안전 관리 (`env.OPENAI_API_KEY`)
-- **민감정보**: `.gitignore`로 Git 추적 차단
-- **통신**: HTTPS로 암호화된 API 통신
+### 🔐 보안 특징
+- **API 키**: 서버 환경변수 관리
+- **민감정보**: Git 추적 차단
+- **통신**: HTTPS 암호화
 
 ---
 
