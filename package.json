@@ -8,7 +8,7 @@
     "deploy": "wrangler deploy --env production"
   },
   "keywords": ["text-to-sql", "cloudflare", "workers", "d1"],
-  "author": "brackdog1@gmail.com",
+  "author": "Your Name",
   "license": "MIT",
   "devDependencies": {
     "wrangler": "^4.25.1"

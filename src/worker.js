@@ -114,12 +114,12 @@ async function handleGenerateSQL(request, env, corsHeaders) {
     const requestBody = await request.json();
     console.log('Request body:', requestBody);
     
-    const { userQuery, apiKey } = requestBody;
+    const { userQuery } = requestBody;
     
-    if (!userQuery || !apiKey) {
+    if (!userQuery) {
       console.log('Missing userQuery or apiKey');
       return new Response(JSON.stringify({ 
-        error: 'User query and API key are required' 
+        error: 'User query is required' 
       }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -133,7 +133,7 @@ async function handleGenerateSQL(request, env, corsHeaders) {
     
     // ChatGPT API로 SQL 생성
     console.log('Calling ChatGPT API...');
-    const generatedSQL = await generateSQLWithChatGPT(userQuery, schemaInfo, apiKey);
+    const generatedSQL = await generateSQLWithChatGPT(userQuery, schemaInfo, env.OPENAI_API_KEY);
     console.log('ChatGPT result:', generatedSQL);
     
     if (!generatedSQL.success) {
@@ -194,12 +194,12 @@ async function handleGenerateHiveSQL(request, env, corsHeaders) {
     const requestBody = await request.json();
     console.log('Request body:', requestBody);
     
-    const { userQuery, apiKey } = requestBody;
+    const { userQuery } = requestBody;
     
-    if (!userQuery || !apiKey) {
+    if (!userQuery) {
       console.log('Missing userQuery or apiKey');
       return new Response(JSON.stringify({ 
-        error: 'User query and API key are required' 
+        error: 'User query is required' 
       }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -213,7 +213,7 @@ async function handleGenerateHiveSQL(request, env, corsHeaders) {
     
     // ChatGPT API로 Hive SQL 생성
     console.log('Calling ChatGPT API for Hive...');
-    const generatedSQL = await generateHiveSQLWithChatGPT(userQuery, schemaInfo, apiKey);
+    const generatedSQL = await generateHiveSQLWithChatGPT(userQuery, schemaInfo, env.OPENAI_API_KEY);
     console.log('ChatGPT Hive result:', generatedSQL);
     
     if (!generatedSQL.success) {
@@ -256,11 +256,11 @@ async function handleExecuteHiveSQL(request, env, corsHeaders) {
     const requestBody = await request.json();
     console.log('Request body:', requestBody);
     
-    const { userQuery, apiKey } = requestBody;
+    const { userQuery } = requestBody;
     
-    if (!userQuery || !apiKey) {
+    if (!userQuery) {
       return new Response(JSON.stringify({ 
-        error: 'User query and API key are required' 
+        error: 'User query is required' 
       }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -273,7 +273,7 @@ async function handleExecuteHiveSQL(request, env, corsHeaders) {
     
     // ChatGPT API로 Hive SQL 생성
     console.log('Calling ChatGPT API for Hive...');
-    const generatedSQL = await generateHiveSQLWithChatGPT(userQuery, schemaInfo, apiKey);
+    const generatedSQL = await generateHiveSQLWithChatGPT(userQuery, schemaInfo, env.OPENAI_API_KEY);
     
     if (!generatedSQL.success) {
       return new Response(JSON.stringify(generatedSQL), {
@@ -335,12 +335,12 @@ async function handleGenerateSybaseSQL(request, env, corsHeaders) {
     const requestBody = await request.json();
     console.log('Request body:', requestBody);
     
-    const { userQuery, apiKey } = requestBody;
+    const { userQuery } = requestBody;
     
-    if (!userQuery || !apiKey) {
+    if (!userQuery) {
       console.log('Missing userQuery or apiKey');
       return new Response(JSON.stringify({ 
-        error: 'User query and API key are required' 
+        error: 'User query is required' 
       }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -354,7 +354,7 @@ async function handleGenerateSybaseSQL(request, env, corsHeaders) {
     
     // ChatGPT API로 Sybase SQL 생성
     console.log('Calling ChatGPT API for Sybase...');
-    const generatedSQL = await generateSybaseSQLWithChatGPT(userQuery, schemaInfo, apiKey);
+    const generatedSQL = await generateSybaseSQLWithChatGPT(userQuery, schemaInfo, env.OPENAI_API_KEY);
     console.log('ChatGPT Sybase result:', generatedSQL);
     
     if (!generatedSQL.success) {
@@ -397,11 +397,11 @@ async function handleExecuteSybaseSQL(request, env, corsHeaders) {
     const requestBody = await request.json();
     console.log('Request body:', requestBody);
     
-    const { userQuery, apiKey } = requestBody;
+    const { userQuery } = requestBody;
     
-    if (!userQuery || !apiKey) {
+    if (!userQuery) {
       return new Response(JSON.stringify({ 
-        error: 'User query and API key are required' 
+        error: 'User query is required' 
       }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -414,7 +414,7 @@ async function handleExecuteSybaseSQL(request, env, corsHeaders) {
     
     // ChatGPT API로 Sybase SQL 생성
     console.log('Calling ChatGPT API for Sybase...');
-    const generatedSQL = await generateSybaseSQLWithChatGPT(userQuery, schemaInfo, apiKey);
+    const generatedSQL = await generateSybaseSQLWithChatGPT(userQuery, schemaInfo, env.OPENAI_API_KEY);
     
     if (!generatedSQL.success) {
       return new Response(JSON.stringify(generatedSQL), {

@@ -16,6 +16,39 @@
 - **AI**: OpenAI ChatGPT API (GPT-3.5-turbo)
 - **배포**: Cloudflare Pages
 
+## 🔒 보안 설정
+
+⚠️ **중요**: 민감정보 파일들은 `.gitignore`에 포함되어 Git에 업로드되지 않습니다.
+
+### 설정 파일 생성
+
+1. **API 설정**:
+   ```bash
+   copy config.example.js config.js
+   ```
+   그리고 `config.js`에서 OpenAI API 키를 설정하세요.
+
+2. **Cloudflare 설정**:
+   ```bash
+   copy wrangler.example.toml wrangler.toml
+   ```
+   그리고 `wrangler.toml`에서 계정 ID와 데이터베이스 ID를 설정하세요.
+
+3. **환경변수 설정** (중요한 보안 개선!):
+   
+   **개발환경**:
+   ```bash
+   wrangler secret put OPENAI_API_KEY
+   # 또는 wrangler.toml의 [vars] 섹션에서 설정
+   ```
+   
+   **프로덕션 환경**:
+   ```bash
+   wrangler secret put OPENAI_API_KEY --env production
+   ```
+   
+   ⚠️ **중요**: API 키는 이제 서버 환경변수로 관리되어 클라이언트에 노출되지 않습니다.
+
 ### 🌐 링크
 - **GitHub**: https://github.com/Jeong-jaehoon/CoP_TTSQL
 - **배포**: Cloudflare Pages (자동 배포)

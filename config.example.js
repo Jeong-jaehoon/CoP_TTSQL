@@ -1,9 +1,15 @@
 // OpenAI API 설정
 const CONFIG = {
-    OPENAI_API_KEY: 'YOUR_OPENAI_API_KEY_HERE', // Replace with your actual API key
+    // OpenAI API 키를 입력하세요
+    // https://platform.openai.com/api-keys 에서 발급받으세요
+    OPENAI_API_KEY: 'YOUR_OPENAI_API_KEY_HERE',
+    
     OPENAI_API_URL: 'https://api.openai.com/v1/chat/completions',
     MODEL: 'gpt-3.5-turbo',
-    WORKER_URL: 'http://127.0.0.1:8787', // 개발 환경용, 배포시 실제 URL로 변경
+    
+    // 개발환경: http://127.0.0.1:8787
+    // 배포환경: 실제 Cloudflare Workers URL
+    WORKER_URL: 'YOUR_WORKER_URL_HERE',
     
     // 쿼리 타입 설정
     QUERY_TYPES: {

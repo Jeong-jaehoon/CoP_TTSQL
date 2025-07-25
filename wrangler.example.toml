@@ -1,0 +1,31 @@
+name = "ttsql-api"
+main = "src/worker.js"
+compatibility_date = "2024-07-24"
+
+# Cloudflare 계정 ID를 입력하세요
+# Cloudflare Dashboard → Workers → Overview에서 확인 가능
+account_id = "YOUR_CLOUDFLARE_ACCOUNT_ID_HERE"
+
+# 환경변수 (보안 설정)
+[vars]
+# 개발환경에서만 사용, 프로덕션에서는 wrangler secret put 사용
+# OPENAI_API_KEY = "your-development-api-key-here"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ttsql-database"
+# Cloudflare D1 데이터베이스 ID를 입력하세요
+# wrangler d1 list 명령어로 확인 가능
+database_id = "YOUR_D1_DATABASE_ID_HERE"
+
+[env.production]
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "ttsql-database"
+database_id = "YOUR_D1_DATABASE_ID_HERE"
+
+[env.development]
+[[env.development.d1_databases]]
+binding = "DB"
+database_name = "ttsql-database"
+database_id = "YOUR_D1_DATABASE_ID_HERE"
