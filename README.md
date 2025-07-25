@@ -4,21 +4,24 @@
 
 ```mermaid
 graph LR
-    A[자연어 입력] --> B[Cloudflare Workers]
-    B --> C[ChatGPT API]
+    A[<b>🌐 자연어 입력</b>] --> B[<b>☁️ Cloudflare Workers</b>]
+    B --> C[<b>🤖 ChatGPT API</b>]
     C --> B
-    B --> D{쿼리 타입}
-    D -->|SQLite/시뮬레이션| E[D1 Database]
-    D -->|Hive/Sybase| F[쿼리 반환]
-    E --> G[실행 결과]
+    B --> D{<b>쿼리 타입</b>}
+    D -->|<b>SQLite/시뮬레이션</b>| E[<b>🗄️ D1 Database</b>]
+    D -->|<b>Hive/Sybase</b>| F[<b>📄 쿼리 반환</b>]
+    E --> G[<b>📊 실행 결과</b>]
     F --> G
-    G --> H[클라이언트 화면]
+    G --> H[<b>💻 클라이언트 화면</b>]
     
-    style A fill:#e3f2fd
-    style B fill:#f3e5f5  
-    style C fill:#fff3e0
-    style E fill:#e8f5e8
-    style H fill:#e3f2fd
+    style A fill:#4fc3f7,stroke:#01579b,stroke-width:3px,color:#000
+    style B fill:#ab47bc,stroke:#4a148c,stroke-width:3px,color:#fff
+    style C fill:#ff9800,stroke:#e65100,stroke-width:3px,color:#fff
+    style D fill:#f44336,stroke:#b71c1c,stroke-width:3px,color:#fff
+    style E fill:#4caf50,stroke:#1b5e20,stroke-width:3px,color:#fff
+    style F fill:#9c27b0,stroke:#4a148c,stroke-width:3px,color:#fff
+    style G fill:#2196f3,stroke:#0d47a1,stroke-width:3px,color:#fff
+    style H fill:#4fc3f7,stroke:#01579b,stroke-width:3px,color:#000
 ```
 
 ### 🔐 보안 특징
