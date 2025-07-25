@@ -1,5 +1,60 @@
 # CoP_TTSQL
 
+## 🔄 시스템 작동 Flow
+
+```mermaid
+graph TB
+    subgraph "🌐 Client (Browser)"
+        A[사용자 자연어 입력] --> B[쿼리 타입 선택]
+        B --> C[API 요청 전송]
+        H[결과 화면 출력] --> I[테이블 형태 표시]
+    end
+    
+    subgraph "☁️ Cloudflare Workers"
+        C --> D[worker.js 요청 처리]
+        D --> E[OpenAI ChatGPT API 호출]
+        E --> F[SQL 쿼리 생성]
+        F --> G{실행 모드?}
+        
+        G -->|SQLite/시뮬레이션| J[D1 Database 실행]
+        G -->|Hive/Sybase 원본| K[쿼리만 반환]
+        
+        J --> L[실행 결과 + 쿼리]
+        K --> M[생성된 쿼리만]
+        
+        L --> H
+        M --> H
+    end
+    
+    subgraph "🤖 OpenAI API"
+        E -.->|env.OPENAI_API_KEY| N[GPT-3.5-turbo]
+        N -.-> F
+    end
+    
+    subgraph "🗄️ Cloudflare D1"
+        J -.-> O[SQLite Database]
+        O -.-> P[employees, departments, projects]
+        P -.-> J
+    end
+    
+    classDef client fill:#e1f5fe
+    classDef worker fill:#f3e5f5
+    classDef ai fill:#fff3e0
+    classDef db fill:#e8f5e8
+    
+    class A,B,C,H,I client
+    class D,E,F,G,J,K,L,M worker
+    class N ai
+    class O,P db
+```
+
+### 🔐 보안 Flow
+- **API 키**: 서버 환경변수로 안전 관리 (`env.OPENAI_API_KEY`)
+- **민감정보**: `.gitignore`로 Git 추적 차단
+- **통신**: HTTPS로 암호화된 API 통신
+
+---
+
 ## 프로젝트 개요
 **CoP_TTSQL**은 자연어를 다양한 SQL 방언으로 변환하는 AI 기반 Text-to-SQL 서비스입니다.
 
