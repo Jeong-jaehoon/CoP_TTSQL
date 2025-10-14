@@ -1,8 +1,7 @@
-// 애플리케이션 설정 템플릿
-// 실제 사용시 config.js로 복사하여 설정값 입력
+// 공개용 애플리케이션 설정
 const CONFIG = {
-    // Workers URL 설정
-    WORKER_URL: 'https://your-worker-name.your-account.workers.dev',
+    // Workers URL 설정 (로컬 개발 서버)
+    WORKER_URL: '', // 같은 서버 사용 (상대 경로)
     
     // 쿼리 타입 설정
     QUERY_TYPES: {

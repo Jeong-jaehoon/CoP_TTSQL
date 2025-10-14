@@ -7,10 +7,20 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --env production"
   },
-  "keywords": ["text-to-sql", "cloudflare", "workers", "d1"],
+  "keywords": [
+    "text-to-sql",
+    "cloudflare",
+    "workers",
+    "d1"
+  ],
   "author": "Your Name",
   "license": "MIT",
   "devDependencies": {
     "wrangler": "^4.25.1"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.4.1",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
   }
 }

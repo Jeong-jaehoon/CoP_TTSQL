@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CoP_TTSQL - Text to SQL AI Assistant</title>
+    <title>IBK기업은행 X 뽑아조 - AI SQL Assistant</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
         
         * {
             margin: 0;
@@ -14,43 +14,41 @@
         }
         
         :root {
-            --primary: #0F172A;
-            --secondary: #1E293B;
-            --accent: #3B82F6;
-            --accent-hover: #2563EB;
+            --ibk-primary: #005BAC;
+            --ibk-secondary: #0073CF;
+            --ibk-light: #E8F3FF;
+            --ibk-dark: #003D75;
+            --text-primary: #1f1f1f;
+            --text-secondary: #666666;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --border-color: #e1e5e9;
             --success: #10B981;
             --warning: #F59E0B;
             --danger: #EF4444;
-            --gray-50: #F8FAFC;
-            --gray-100: #F1F5F9;
-            --gray-200: #E2E8F0;
-            --gray-300: #CBD5E1;
-            --gray-400: #94A3B8;
-            --gray-500: #64748B;
-            --gray-600: #475569;
-            --gray-700: #334155;
-            --gray-800: #1E293B;
-            --gray-900: #0F172A;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --radius: 0.75rem;
+            --gradient: linear-gradient(135deg, #005BAC 0%, #0073CF 100%);
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
         
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--gray-50);
-            color: var(--gray-900);
-            line-height: 1.5;
-            font-weight: 400;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         
+        /* 헤더 */
         .header {
-            background: var(--primary);
-            border-bottom: 1px solid var(--gray-200);
-            padding: 1.5rem 0;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         
         .header-content {
@@ -65,849 +63,886 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 1rem;
         }
         
-        .logo-icon {
-            width: 2rem;
-            height: 2rem;
-            background: var(--accent);
-            border-radius: 0.5rem;
+        .logo img {
+            height: 40px;
+            border-radius: 8px;
+        }
+        
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--ibk-primary);
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .help-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 1.125rem;
-        }
-        
-        .logo h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: white;
-            letter-spacing: -0.025em;
-        }
-        
-        .logo span {
-            font-size: 0.875rem;
-            color: var(--gray-400);
-            font-weight: 400;
-        }
-        
-        .main-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem 1.5rem;
-            display: grid;
-            grid-template-columns: 280px 1fr 280px;
-            gap: 2rem;
-            min-height: calc(100vh - 5rem);
-        }
-        
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-        
-        .sidebar-section {
-            background: white;
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius);
-            overflow: hidden;
-        }
-        
-        .sidebar-header {
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--gray-200);
-            background: var(--gray-50);
-        }
-        
-        .sidebar-title {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--gray-700);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        .sidebar-content {
-            padding: 1rem;
-        }
-        
-        .schema-item {
-            padding: 0.75rem;
-            border: 1px solid var(--gray-200);
-            border-radius: 0.5rem;
-            margin-bottom: 0.75rem;
-            transition: all 0.2s ease;
-        }
-        
-        .schema-item:hover {
-            border-color: var(--accent);
-            background: var(--gray-50);
-        }
-        
-        .table-name {
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 0.25rem;
-            font-size: 0.875rem;
-        }
-        
-        .column-list {
-            font-size: 0.75rem;
-            color: var(--gray-500);
-            font-family: 'JetBrains Mono', 'Courier New', monospace;
-        }
-        
-        .main-content {
-            background: white;
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .main-header {
-            padding: 1.5rem 2rem;
-            border-bottom: 1px solid var(--gray-200);
-            background: var(--gray-50);
-        }
-        
-        .main-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 0.25rem;
-        }
-        
-        .main-subtitle {
-            font-size: 0.875rem;
-            color: var(--gray-500);
-        }
-        
-        .main-body {
-            padding: 2rem;
-            flex: 1;
-        }
-        
-        .input-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .input-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--gray-700);
-            font-size: 0.875rem;
-        }
-        
-        .text-input {
-            width: 100%;
-            padding: 0.875rem 1rem;
-            border: 1px solid var(--gray-300);
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            font-family: inherit;
-            transition: all 0.2s ease;
-            resize: vertical;
-            min-height: 120px;
-            background: white;
-        }
-        
-        .text-input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
-        }
-        
-        .text-input::placeholder {
-            color: var(--gray-400);
-        }
-        
-        .query-type-select {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--gray-300);
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            font-family: inherit;
-            background: white;
-            color: var(--gray-700);
             cursor: pointer;
             transition: all 0.2s ease;
-            height: 48px;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.75rem center;
-            background-repeat: no-repeat;
-            background-size: 1rem;
-            padding-right: 2.5rem;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
         }
         
-        .query-type-select:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+        .help-btn:hover {
+            background: var(--ibk-light);
+            color: var(--ibk-primary);
+            transform: scale(1.05);
         }
         
-        .query-type-select:hover {
-            border-color: var(--accent);
-        }
-        
-        .query-type-select option {
-            padding: 0.5rem;
-            font-size: 0.875rem;
-        }
-        
-        .query-type-info {
-            margin-top: 0.5rem;
-            padding: 0.75rem 1rem;
-            background: var(--gray-50);
-            border: 1px solid var(--gray-200);
-            border-radius: 0.375rem;
-            transition: all 0.3s ease;
-        }
-        
-        .info-text {
-            font-size: 0.75rem;
-            color: var(--gray-600);
-            line-height: 1.4;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .info-text::before {
-            content: "ℹ️";
-            font-size: 0.875rem;
-        }
-        
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            border-radius: 0.5rem;
+        .contact-btn {
+            background: var(--gradient);
+            color: white !important;
             border: none;
+            border-radius: 20px;
+            padding: 0.75rem 1.25rem;
+            font-size: 0.9rem;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
-            text-decoration: none;
             font-family: inherit;
-        }
-        
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: var(--accent-hover);
-            transform: translateY(-1px);
+            display: inline-block;
+            text-decoration: none;
             box-shadow: var(--shadow);
         }
         
-        .result-section {
-            display: none;
-            margin-top: 2rem;
-            border-top: 1px solid var(--gray-200);
-            padding-top: 2rem;
+        .contact-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
         }
         
-        .result-header {
+        /* 메인 컨테이너 */
+        .main-container {
+            flex: 1;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            width: 100%;
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            min-height: calc(100vh - 80px);
+        }
+        
+        /* 환영 섹션 */
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            transition: all 0.3s ease;
+        }
+        
+        .welcome-section.compact {
+            margin-bottom: 1rem;
+        }
+        
+        .welcome-section.compact .welcome-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .welcome-section.compact .welcome-subtitle {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        
+        .welcome-section.compact .examples {
             gap: 0.5rem;
             margin-bottom: 1rem;
         }
         
-        .result-title {
-            font-weight: 600;
-            color: var(--primary);
-            font-size: 0.875rem;
+        .welcome-section.compact .example-card {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
         }
         
-        .result-badge {
-            padding: 0.25rem 0.5rem;
-            background: var(--success);
-            color: white;
-            border-radius: 0.25rem;
-            font-size: 0.75rem;
-            font-weight: 500;
+        .welcome-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
         }
         
-        .sql-output {
-            background: var(--gray-900);
-            color: var(--gray-100);
-            padding: 1.5rem;
-            border-radius: 0.5rem;
-            font-family: 'JetBrains Mono', 'Courier New', monospace;
-            font-size: 0.875rem;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-            overflow-x: auto;
-            border: 1px solid var(--gray-800);
+        .welcome-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
         }
         
-        .table-container {
-            border: 1px solid var(--gray-200);
-            border-radius: 0.5rem;
+        
+        /* 채팅 영역 */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
             overflow: hidden;
-            background: white;
+            min-height: 500px;
         }
         
-        .table-container table {
+        .chat-messages {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            background: linear-gradient(to bottom, var(--bg-primary), var(--bg-secondary));
+        }
+        
+        .message {
+            margin-bottom: 1.5rem;
+        }
+        
+        .message-user {
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .message-bot {
+            display: flex;
+            justify-content: flex-start;
+        }
+        
+        .message-content {
+            max-width: 70%;
+            padding: 1rem 1.5rem;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .message-user .message-content {
+            background: var(--gradient);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message-bot .message-content {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .sql-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--text-primary);
+            color: #00ff00;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+        }
+        
+        .result-table {
+            margin-top: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .result-table table {
             width: 100%;
             border-collapse: collapse;
         }
         
-        .table-container th {
-            background: var(--gray-50);
-            padding: 0.875rem 1rem;
+        .result-table th {
+            background: var(--ibk-light);
+            padding: 0.75rem;
             text-align: left;
             font-weight: 600;
-            color: var(--gray-700);
-            font-size: 0.875rem;
-            border-bottom: 1px solid var(--gray-200);
+            border-bottom: 1px solid var(--border-color);
         }
         
-        .table-container td {
-            padding: 0.875rem 1rem;
-            border-bottom: 1px solid var(--gray-100);
-            font-size: 0.875rem;
-            color: var(--gray-700);
+        .result-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
         }
         
-        .table-container tr:last-child td {
-            border-bottom: none;
+        /* 입력 영역 */
+        .input-container {
+            padding: 1.5rem;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
         }
         
-        .example-item {
-            padding: 1rem;
-            border: 1px solid var(--gray-200);
-            border-radius: 0.5rem;
-            margin-bottom: 0.75rem;
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            gap: 0.75rem;
+        }
+        
+        .input-field {
+            flex: 1;
+            min-height: 50px;
+            max-height: 120px;
+            padding: 0.875rem 3rem 0.875rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            transition: all 0.2s ease;
+            background: var(--bg-secondary);
+        }
+        
+        .input-field:focus {
+            border-color: var(--ibk-primary);
+            background: var(--bg-primary);
+            box-shadow: 0 0 0 3px rgba(0, 91, 172, 0.1);
+        }
+        
+        .input-field::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .send-btn {
+            background: white;
+            border: 2px solid var(--ibk-primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
             transition: all 0.2s ease;
-            background: white;
+            flex-shrink: 0;
+            padding: 0;
+            overflow: hidden;
         }
         
-        .example-item:hover {
-            border-color: var(--accent);
-            background: var(--gray-50);
-            transform: translateY(-1px);
+        .send-btn img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
         }
         
-        .example-query {
-            font-weight: 500;
-            color: var(--primary);
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow);
+        }
+        
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* 예제 쿼리 */
+        .examples {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .example-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .example-card:hover {
+            border-color: var(--ibk-primary);
+            color: var(--ibk-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        /* 도움말 모달 */
+        .help-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .help-content {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .help-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        
+        .help-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--ibk-primary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .help-section {
+            margin-bottom: 2rem;
+        }
+        
+        .help-section h3 {
+            color: var(--ibk-primary);
+            margin-bottom: 0.75rem;
+        }
+        
+        .help-section p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* Contact Us 모달 */
+        .contact-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .contact-content {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+            text-align: center;
+        }
+        
+        .contact-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        
+        .contact-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--ibk-primary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .contact-info {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .contact-item {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .contact-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--ibk-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ibk-primary);
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        
+        .contact-details {
+            text-align: left;
+        }
+        
+        .contact-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
             margin-bottom: 0.25rem;
-            font-size: 0.875rem;
         }
         
-        .example-desc {
-            font-size: 0.75rem;
-            color: var(--gray-500);
-            line-height: 1.4;
+        .contact-value {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
         }
         
-        @media (max-width: 1024px) {
-            .main-container {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-                padding: 1.5rem 1rem;
-            }
-            
-            .header-content {
-                padding: 0 1rem;
-            }
-            
-            .main-body {
-                padding: 1.5rem;
-            }
+        .contact-email {
+            color: var(--ibk-primary);
+            text-decoration: none;
         }
         
-        @media (max-width: 640px) {
-            .logo h1 {
-                font-size: 1.25rem;
-            }
-            
+        .contact-email:hover {
+            text-decoration: underline;
+        }
+        
+        /* 로딩 */
+        .loading {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            gap: 1rem;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--ibk-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 반응형 */
+        @media (max-width: 768px) {
             .main-container {
                 padding: 1rem;
-                gap: 1rem;
             }
             
-            .main-body {
-                padding: 1rem;
+            .welcome-title {
+                font-size: 1.75rem;
+            }
+            
+            .examples {
+                flex-direction: column;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+            
+            .input-field {
+                padding: 0.75rem 1rem;
+            }
+            
+            .send-btn {
+                width: 45px;
+                height: 45px;
             }
         }
     </style>
 </head>
 <body>
+    <!-- 헤더 -->
     <header class="header">
         <div class="header-content">
             <div class="logo">
-                <div class="logo-icon">S</div>
-                <div>
-                    <h1>CoP_TTSQL</h1>
-                    <span>AI-Powered SQL Assistant</span>
-                </div>
+                <img src="images/기업은행로고.jpg" alt="IBK 기업은행 로고">
+                <span class="logo-text">IBK기업은행 X 뽑아조</span>
+            </div>
+            <div class="header-actions">
+                <button class="contact-btn" onclick="toggleContact()">Contact Us</button>
+                <button class="help-btn" onclick="toggleHelp()">?</button>
             </div>
         </div>
     </header>
     
+    <!-- 메인 컨테이너 -->
     <div class="main-container">
-        <!-- 왼쪽 사이드바: 데이터베이스 스키마 -->
-        <div class="sidebar">
-            <div class="sidebar-section">
-                <div class="sidebar-header">
-                    <div class="sidebar-title">Database Schema</div>
+        <!-- 환영 섹션 -->
+        <div class="welcome-section" id="welcomeSection">
+            <h1 class="welcome-title">뽑아조에게 물어보세요!</h1>
+            <p class="welcome-subtitle">자연어로 질문하면 SQL 쿼리를 생성하고 실행해드립니다</p>
+            
+            <!-- 예제 쿼리 -->
+            <div class="examples">
+                <div class="example-card" onclick="useExample('급여가 5000만원 이상인 직원들의 이름과 부서를 보여주세요')">
+                    💰 급여가 5000만원 이상인 직원들
                 </div>
-                <div class="sidebar-content">
-                    <div class="schema-item">
-                        <div class="table-name">employees</div>
-                        <div class="column-list">id, name, department, salary, hire_date</div>
-                    </div>
-                    <div class="schema-item">
-                        <div class="table-name">departments</div>
-                        <div class="column-list">id, name, manager_id, budget</div>
-                    </div>
-                    <div class="schema-item">
-                        <div class="table-name">projects</div>
-                        <div class="column-list">id, name, start_date, end_date, budget</div>
-                    </div>
+                <div class="example-card" onclick="useExample('부서별 평균 급여를 계산해주세요')">
+                    📊 부서별 평균 급여
+                </div>
+                <div class="example-card" onclick="useExample('2023년에 입사한 직원 수는 몇 명인가요?')">
+                    👥 2023년 신입사원 수
+                </div>
+                <div class="example-card" onclick="useExample('종료일이 없는 프로젝트 목록을 보여주세요')">
+                    🚀 진행 중인 프로젝트
                 </div>
             </div>
         </div>
         
-        <!-- 메인 콘텐츠 -->
-        <div class="main-content">
-            <div class="main-header">
-                <div class="main-title">자연어 쿼리 생성기</div>
-                <div class="main-subtitle">일반 언어로 질문을 입력하면 SQL 쿼리로 변환해드립니다</div>
+        <!-- 채팅 컨테이너 -->
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <!-- 메시지들이 여기에 표시됩니다 -->
             </div>
             
-            <div class="main-body">
-                <div class="input-group">
-                    <label class="input-label">쿼리 타입 선택</label>
-                    <select class="query-type-select" id="queryType">
-                        <option value="sqlite">🗄️ SQLite (Cloudflare D1 실행)</option>
-                        <option value="hive">🏭 Hive SQL (쿼리만 생성)</option>
-                        <option value="hive-execute">⚡ Hive SQL (D1에서 시뮬레이션 실행)</option>
-                        <option value="sybase">🏢 Sybase SQL (쿼리만 생성)</option>
-                        <option value="sybase-execute">🔧 Sybase SQL (D1에서 시뮬레이션 실행)</option>
-                    </select>
-                    <div class="query-type-info" id="queryTypeInfo">
-                        <span class="info-text">SQLite 모드: 쿼리를 생성하고 실제 결과를 바로 확인할 수 있습니다.</span>
-                    </div>
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">
+                    AI가 SQL을 생성하고 있어요...<br>
+                    <span style="font-size: 0.8rem; color: var(--text-secondary);">잠시만 기다려주세요 (약 5-10초 소요)</span>
                 </div>
-                
-                <div class="input-group">
-                    <label class="input-label">질문을 입력하세요</label>
-                    <textarea class="text-input" id="userInput" placeholder="예: 급여가 5000만원 이상인 직원들의 이름과 부서를 보여주세요"></textarea>
-                    <button class="btn btn-primary" onclick="processQuery()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                        </svg>
-                        쿼리 생성
+            </div>
+            
+            <!-- 입력 영역 -->
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        class="input-field" 
+                        id="userInput" 
+                        placeholder="데이터베이스에 대해 질문해보세요... (예: 급여가 가장 높은 직원은 누구인가요?)"
+                        rows="1"
+                    ></textarea>
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                        <img src="images/마스코트이미지.png" alt="뽑아조 전송">
                     </button>
-                </div>
-                
-                <div class="result-section" id="resultSection">
-                    <div class="result-header">
-                        <div class="result-title">생성된 SQL</div>
-                        <div class="result-badge">SUCCESS</div>
-                    </div>
-                    <div class="sql-output" id="sqlOutput"></div>
-                    
-                    <div class="result-header">
-                        <div class="result-title">실행 결과</div>
-                    </div>
-                    <div class="table-container" id="tableResult">
-                        <table>
-                            <thead>
-                                <tr><th>이름</th><th>부서</th><th>급여</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>김철수</td><td>개발팀</td><td>55,000,000</td></tr>
-                                <tr><td>이영희</td><td>마케팅팀</td><td>52,000,000</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             </div>
         </div>
-        
-        <!-- 오른쪽 사이드바: 예제 쿼리 -->
-        <div class="sidebar">
-            <div class="sidebar-section">
-                <div class="sidebar-header">
-                    <div class="sidebar-title">Quick Examples</div>
+    </div>
+    
+    <!-- 도움말 모달 -->
+    <div class="help-modal" id="helpModal" onclick="closeHelp(event)">
+        <div class="help-content" onclick="event.stopPropagation()">
+            <button class="help-close" onclick="closeHelp()">&times;</button>
+            <h2 class="help-title">IBK기업은행 X 뽑아조 사용법</h2>
+            
+            <div class="help-section">
+                <h3>🤖 뽑아조란?</h3>
+                <p>뽑아조는 자연어를 SQL 쿼리로 변환해주는 AI Assistant입니다. 복잡한 SQL을 몰라도 일상 언어로 데이터베이스에 질문할 수 있어요!</p>
+            </div>
+            
+            <div class="help-section">
+                <h3>💡 사용 방법</h3>
+                <p>• 일상 언어로 질문을 입력하세요<br>
+                • 뽑아조가 SQL 쿼리를 생성합니다<br>
+                • 실제 데이터베이스에서 결과를 가져옵니다<br>
+                • 결과를 보기 쉬운 표로 보여드려요</p>
+            </div>
+            
+            <div class="help-section">
+                <h3>📊 사용 가능한 데이터</h3>
+                <p>• <strong>직원 정보:</strong> 이름, 부서, 급여, 입사일<br>
+                • <strong>부서 정보:</strong> 부서명, 관리자, 예산<br>
+                • <strong>프로젝트:</strong> 프로젝트명, 기간, 예산<br>
+                • <strong>참여 관계:</strong> 직원-프로젝트 연결 정보</p>
+            </div>
+            
+            <div class="help-section">
+                <h3>✨ 질문 예시</h3>
+                <p>• "급여가 가장 높은 직원 3명은?"<br>
+                • "개발팀에 몇 명이 있나요?"<br>
+                • "예산이 1억원 이상인 프로젝트들"<br>
+                • "김철수가 참여하는 프로젝트는?"</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contact Us 모달 -->
+    <div class="contact-modal" id="contactModal" onclick="closeContact(event)">
+        <div class="contact-content" onclick="event.stopPropagation()">
+            <button class="contact-close" onclick="closeContact()">&times;</button>
+            <h2 class="contact-title">Contact Us</h2>
+            
+            <div class="contact-info">
+                <div class="contact-item">
+                    <div class="contact-icon">🏢</div>
+                    <div class="contact-details">
+                        <div class="contact-label">부서</div>
+                        <div class="contact-value">AI&Tech센터</div>
+                    </div>
                 </div>
-                <div class="sidebar-content">
-                    <div class="example-item" onclick="useExample('부서별 평균 급여를 보여주세요')">
-                        <div class="example-query">부서별 평균 급여 조회</div>
-                        <div class="example-desc">각 부서의 평균 급여를 계산합니다</div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">👨‍💼</div>
+                    <div class="contact-details">
+                        <div class="contact-label">담당자</div>
+                        <div class="contact-value">담당자</div>
                     </div>
-                    <div class="example-item" onclick="useExample('프로젝트 예산이 1억원 이상인 프로젝트 목록')">
-                        <div class="example-query">고예산 프로젝트 조회</div>
-                        <div class="example-desc">예산이 높은 프로젝트를 찾습니다</div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">📧</div>
+                    <div class="contact-details">
+                        <div class="contact-label">이메일</div>
+                        <div class="contact-value">
+                            <a href="mailto:contact@company.com" class="contact-email">contact@company.com</a>
+                        </div>
                     </div>
-                    <div class="example-item" onclick="useExample('2023년에 입사한 직원 수는?')">
-                        <div class="example-query">특정 연도 신입사원 수</div>
-                        <div class="example-desc">특정 기간의 채용 현황을 확인합니다</div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">📱</div>
+                    <div class="contact-details">
+                        <div class="contact-label">연락처</div>
+                        <div class="contact-value">
+                            <a href="tel:02-0000-0000" class="contact-email">02-0000-0000</a>
+                        </div>
                     </div>
                 </div>
             </div>
+            
+            <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 1rem;">
+                뽑아조 사용 중 문의사항이나 개선 요청이 있으시면 언제든 연락해 주세요! 💙
+            </p>
         </div>
     </div>
     
     <script src="config.js"></script>
     <script src="api.js"></script>
     <script>
-        // TTSQL API 인스턴스 생성
-        const ttsqlAPI = new TTSQLAPI();
+        // 전역 변수
+        let ttsqlAPI;
+        let conversationHistory = [];
         
-        async function processQuery() {
-            const input = document.getElementById('userInput').value;
-            const queryType = document.getElementById('queryType').value;
-            
-            if (!input.trim()) {
-                alert('질문을 입력해주세요.');
-                return;
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                ttsqlAPI = new TTSQLAPI();
+                console.log('뽑아조 API 초기화 성공');
+            } catch (error) {
+                console.error('API 초기화 실패:', error);
+                addMessage('bot', '죄송해요, 시스템 초기화 중 오류가 발생했습니다. 페이지를 새로고침해 주세요.');
             }
             
-            // 버튼 비활성화 및 로딩 표시
-            const button = document.querySelector('.btn-primary');
-            const originalText = button.innerHTML;
-            button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg> 생성 중...';
-            button.disabled = true;
+            // 입력 필드 이벤트
+            const userInput = document.getElementById('userInput');
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            // 자동 높이 조절
+            userInput.addEventListener('input', autoResize);
+        });
+        
+        // 메시지 전송
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
+            
+            if (!message) return;
+            
+            // 환영 섹션 컴팩트하게 만들기
+            const welcomeSection = document.getElementById('welcomeSection');
+            if (!welcomeSection.classList.contains('compact')) {
+                welcomeSection.classList.add('compact');
+            }
+            
+            // 사용자 메시지 추가
+            addMessage('user', message);
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            
+            // 로딩 표시
+            showLoading(true);
             
             try {
-                // 먼저 Workers API 연결 테스트
-                await ttsqlAPI.testConnection();
-                
-                let result;
-                if (queryType === 'hive') {
-                    // Hive SQL 생성 (실행하지 않음)
-                    result = await ttsqlAPI.generateHiveSQL(input);
-                } else if (queryType === 'hive-execute') {
-                    // Hive SQL 생성 및 D1에서 시뮬레이션 실행
-                    result = await ttsqlAPI.generateAndExecuteHiveSQL(input);
-                } else if (queryType === 'sybase') {
-                    // Sybase SQL 생성 (실행하지 않음)
-                    result = await ttsqlAPI.generateSybaseSQL(input);
-                } else if (queryType === 'sybase-execute') {
-                    // Sybase SQL 생성 및 D1에서 시뮬레이션 실행
-                    result = await ttsqlAPI.generateAndExecuteSybaseSQL(input);
-                } else {
-                    // SQLite 생성 및 실행
-                    result = await ttsqlAPI.generateAndExecuteSQL(input);
-                }
+                // API 호출
+                console.log('사용자 입력:', message);
+                const result = await ttsqlAPI.generateAndExecuteSQL(message);
+                console.log('API 결과:', result);
                 
                 if (result.success) {
-                    // SQL 결과 표시
-                    document.getElementById('sqlOutput').textContent = result.sql;
-                    
-                    if (queryType === 'hive') {
-                        // Hive의 경우 메모만 표시
-                        displayHiveNote(result.note);
-                    } else if (queryType === 'hive-execute') {
-                        // Hive 시뮬레이션의 경우 실제 결과와 변환 정보 표시
-                        displayHiveSimulationResults(result);
-                    } else if (queryType === 'sybase') {
-                        // Sybase의 경우 메모만 표시
-                        displaySybaseNote(result.note);
-                    } else if (queryType === 'sybase-execute') {
-                        // Sybase 시뮬레이션의 경우 실제 결과와 변환 정보 표시
-                        displaySybaseSimulationResults(result);
-                    } else {
-                        // SQLite의 경우 실제 데이터베이스 결과 표시
-                        displayResults(result.data);
-                    }
-                    
-                    // 결과 섹션 표시
-                    document.getElementById('resultSection').style.display = 'block';
-                    
-                    // 성공 배지 표시
-                    document.querySelector('.result-badge').textContent = 'SUCCESS';
-                    document.querySelector('.result-badge').style.background = 'var(--success)';
+                    // SQL과 결과 표시
+                    let botResponse = `쿼리를 생성했어요! 결과를 확인해보세요.`;
+                    addMessage('bot', botResponse, result.sql, result.data);
                 } else {
-                    // 오류 처리
-                    document.getElementById('sqlOutput').textContent = `오류: ${result.error}`;
-                    document.getElementById('resultSection').style.display = 'block';
-                    
-                    // 오류 배지 표시
-                    document.querySelector('.result-badge').textContent = 'ERROR';
-                    document.querySelector('.result-badge').style.background = 'var(--danger)';
+                    addMessage('bot', `죄송해요, 오류가 발생했습니다: ${result.error}`);
                 }
-                
             } catch (error) {
-                console.error('처리 중 오류 발생:', error);
-                
-                // 오류 정보를 화면에 표시
-                document.getElementById('sqlOutput').textContent = `오류 발생:\n${error.message}`;
-                document.getElementById('resultSection').style.display = 'block';
-                document.querySelector('.result-badge').textContent = 'ERROR';
-                document.querySelector('.result-badge').style.background = 'var(--danger)';
-                
-                // 상세 오류도 콘솔에 표시
-                if (error.stack) {
-                    console.error('Error stack:', error.stack);
-                }
+                console.error('API 호출 오류:', error);
+                addMessage('bot', '죄송해요, 처리 중 오류가 발생했습니다. 다시 시도해 주세요.');
             } finally {
-                // 버튼 복원
-                button.innerHTML = originalText;
-                button.disabled = false;
+                showLoading(false);
             }
         }
         
-        function displayResults(data) {
-            const tableResult = document.getElementById('tableResult');
+        // 메시지 추가
+        function addMessage(type, content, sql = null, data = null) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${type}`;
             
-            if (!data || data.length === 0) {
-                tableResult.innerHTML = '<p style="padding: 1rem; color: var(--gray-500);">결과가 없습니다.</p>';
-                return;
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = content;
+            
+            // SQL 결과 추가
+            if (sql) {
+                const sqlDiv = document.createElement('div');
+                sqlDiv.className = 'sql-result';
+                sqlDiv.textContent = sql;
+                contentDiv.appendChild(sqlDiv);
             }
             
-            // 테이블 헤더 생성
-            const columns = Object.keys(data[0]);
-            let tableHTML = '<table><thead><tr>';
-            columns.forEach(col => {
-                tableHTML += `<th>${col}</th>`;
-            });
-            tableHTML += '</tr></thead><tbody>';
-            
-            // 테이블 데이터 생성
-            data.forEach(row => {
-                tableHTML += '<tr>';
-                columns.forEach(col => {
-                    tableHTML += `<td>${row[col] || ''}</td>`;
-                });
-                tableHTML += '</tr>';
-            });
-            
-            tableHTML += '</tbody></table>';
-            tableResult.innerHTML = tableHTML;
-        }
-        
-        function displayHiveNote(note) {
-            const tableResult = document.getElementById('tableResult');
-            tableResult.innerHTML = `
-                <div style="padding: 2rem; text-align: center; color: var(--gray-600);">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 1rem;">
-                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                    </svg>
-                    <h3 style="margin-bottom: 0.5rem; color: var(--primary);">Hive SQL 생성 완료</h3>
-                    <p style="margin: 0; font-size: 0.875rem;">${note}</p>
-                    <p style="margin-top: 1rem; font-size: 0.75rem; color: var(--gray-500);">
-                        생성된 Hive SQL을 복사해서 실제 Hive 클러스터에서 실행하세요.
-                    </p>
-                </div>
-            `;
-        }
-        
-        function displayHiveSimulationResults(result) {
-            const tableResult = document.getElementById('tableResult');
-            
-            // 실제 데이터 테이블 생성
-            let tableHTML = '';
-            if (result.data && result.data.length > 0) {
-                const columns = Object.keys(result.data[0]);
-                tableHTML = '<table><thead><tr>';
-                columns.forEach(col => {
-                    tableHTML += `<th>${col}</th>`;
-                });
-                tableHTML += '</tr></thead><tbody>';
+            // 데이터 테이블 추가
+            if (data && data.length > 0) {
+                const tableDiv = document.createElement('div');
+                tableDiv.className = 'result-table';
                 
-                result.data.forEach(row => {
-                    tableHTML += '<tr>';
-                    columns.forEach(col => {
-                        tableHTML += `<td>${row[col] || ''}</td>`;
+                const table = document.createElement('table');
+                const thead = document.createElement('thead');
+                const tbody = document.createElement('tbody');
+                
+                // 헤더
+                const headerRow = document.createElement('tr');
+                Object.keys(data[0]).forEach(key => {
+                    const th = document.createElement('th');
+                    th.textContent = key;
+                    headerRow.appendChild(th);
+                });
+                thead.appendChild(headerRow);
+                
+                // 데이터
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    Object.entries(row).forEach(([key, value]) => {
+                        const td = document.createElement('td');
+                        td.textContent = formatValue(key, value);
+                        tr.appendChild(td);
                     });
-                    tableHTML += '</tr>';
+                    tbody.appendChild(tr);
                 });
                 
-                tableHTML += '</tbody></table>';
+                table.appendChild(thead);
+                table.appendChild(tbody);
+                tableDiv.appendChild(table);
+                contentDiv.appendChild(tableDiv);
             }
             
-            // 시뮬레이션 정보와 함께 표시
-            tableResult.innerHTML = `
-                <div style="margin-bottom: 1.5rem; padding: 1rem; background: rgb(254 249 195); border: 1px solid rgb(251 191 36); border-radius: 0.5rem;">
-                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                        <span style="font-size: 1rem;">⚡</span>
-                        <strong style="color: var(--primary);">Hive 시뮬레이션 실행 완료</strong>
-                    </div>
-                    <p style="margin: 0; font-size: 0.75rem; color: var(--gray-600);">
-                        ${result.note}
-                    </p>
-                    ${result.convertedSQL ? `
-                        <details style="margin-top: 0.75rem;">
-                            <summary style="cursor: pointer; font-size: 0.75rem; color: var(--gray-500);">변환된 SQLite 쿼리 보기</summary>
-                            <code style="display: block; margin-top: 0.5rem; padding: 0.5rem; background: white; border-radius: 0.25rem; font-size: 0.75rem; word-break: break-all;">
-                                ${result.convertedSQL}
-                            </code>
-                        </details>
-                    ` : ''}
-                    <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--gray-500);">
-                        실행 시간: ${result.executionTime}ms
-                    </div>
-                </div>
-                ${tableHTML}
-            `;
-        }
-        
-        function displaySybaseNote(note) {
-            const tableResult = document.getElementById('tableResult');
-            tableResult.innerHTML = `
-                <div style="padding: 2rem; text-align: center; color: var(--gray-600);">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 1rem;">
-                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                    </svg>
-                    <h3 style="margin-bottom: 0.5rem; color: var(--primary);">Sybase SQL 생성 완료</h3>
-                    <p style="margin: 0; font-size: 0.875rem;">${note}</p>
-                    <p style="margin-top: 1rem; font-size: 0.75rem; color: var(--gray-500);">
-                        생성된 Sybase SQL을 복사해서 실제 Sybase 서버에서 실행하세요.
-                    </p>
-                </div>
-            `;
-        }
-        
-        function displaySybaseSimulationResults(result) {
-            const tableResult = document.getElementById('tableResult');
+            messageDiv.appendChild(contentDiv);
+            chatMessages.appendChild(messageDiv);
             
-            // 실제 데이터 테이블 생성
-            let tableHTML = '';
-            if (result.data && result.data.length > 0) {
-                const columns = Object.keys(result.data[0]);
-                tableHTML = '<table><thead><tr>';
-                columns.forEach(col => {
-                    tableHTML += `<th>${col}</th>`;
-                });
-                tableHTML += '</tr></thead><tbody>';
-                
-                result.data.forEach(row => {
-                    tableHTML += '<tr>';
-                    columns.forEach(col => {
-                        tableHTML += `<td>${row[col] || ''}</td>`;
-                    });
-                    tableHTML += '</tr>';
-                });
-                
-                tableHTML += '</tbody></table>';
+            // 스크롤 하단으로
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // 숫자 포맷팅 함수
+        function formatValue(key, value) {
+            // salary, avg_salary 등 급여 관련 필드 포맷팅
+            if (key && (key.toLowerCase().includes('salary') || key.toLowerCase().includes('급여'))) {
+                const num = parseInt(value);
+                if (!isNaN(num)) {
+                    return num.toLocaleString('ko-KR') + '원';
+                }
             }
             
-            // 시뮬레이션 정보와 함께 표시
-            tableResult.innerHTML = `
-                <div style="margin-bottom: 1.5rem; padding: 1rem; background: rgb(245 245 255); border: 1px solid rgb(99 102 241); border-radius: 0.5rem;">
-                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                        <span style="font-size: 1rem;">🔧</span>
-                        <strong style="color: var(--primary);">Sybase 시뮬레이션 실행 완료</strong>
-                    </div>
-                    <p style="margin: 0; font-size: 0.75rem; color: var(--gray-600);">
-                        ${result.note}
-                    </p>
-                    ${result.convertedSQL ? `
-                        <details style="margin-top: 0.75rem;">
-                            <summary style="cursor: pointer; font-size: 0.75rem; color: var(--gray-500);">변환된 SQLite 쿼리 보기</summary>
-                            <code style="display: block; margin-top: 0.5rem; padding: 0.5rem; background: white; border-radius: 0.25rem; font-size: 0.75rem; word-break: break-all;">
-                                ${result.convertedSQL}
-                            </code>
-                        </details>
-                    ` : ''}
-                    <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--gray-500);">
-                        실행 시간: ${result.executionTime}ms
-                    </div>
-                </div>
-                ${tableHTML}
-            `;
-        }
-        
-        function useExample(exampleText) {
-            document.getElementById('userInput').value = exampleText;
-        }
-        
-        // 쿼리 타입 변경 시 정보 업데이트
-        function updateQueryTypeInfo() {
-            const queryType = document.getElementById('queryType').value;
-            const infoElement = document.getElementById('queryTypeInfo');
-            const infoText = infoElement.querySelector('.info-text');
-            const button = document.querySelector('.btn-primary');
-            
-            if (queryType === 'hive') {
-                infoText.textContent = 'Hive SQL 모드: 회사 Hive 클러스터용 쿼리를 생성합니다. (실행되지 않음)';
-                infoElement.style.background = 'rgb(255 251 235)';
-                infoElement.style.borderColor = 'rgb(252 211 77)';
-                button.innerHTML = `
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                    </svg>
-                    Hive SQL 생성
-                `;
-            } else if (queryType === 'hive-execute') {
-                infoText.textContent = 'Hive 시뮬레이션 모드: Hive SQL을 생성하고 SQLite로 변환하여 D1에서 실행합니다.';
-                infoElement.style.background = 'rgb(240 253 244)';
-                infoElement.style.borderColor = 'rgb(34 197 94)';
-                button.innerHTML = `
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                    </svg>
-                    Hive 시뮬레이션 실행
-                `;
-            } else if (queryType === 'sybase') {
-                infoText.textContent = 'Sybase SQL 모드: 기업용 Sybase 서버 쿼리를 생성합니다. (실행되지 않음)';
-                infoElement.style.background = 'rgb(254 242 242)';
-                infoElement.style.borderColor = 'rgb(239 68 68)';
-                button.innerHTML = `
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                    </svg>
-                    Sybase SQL 생성
-                `;
-            } else if (queryType === 'sybase-execute') {
-                infoText.textContent = 'Sybase 시뮬레이션 모드: Sybase SQL을 생성하고 SQLite로 변환하여 D1에서 실행합니다.';
-                infoElement.style.background = 'rgb(245 245 255)';
-                infoElement.style.borderColor = 'rgb(99 102 241)';
-                button.innerHTML = `
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                    </svg>
-                    Sybase 시뮬레이션 실행
-                `;
-            } else {
-                infoText.textContent = 'SQLite 모드: 쿼리를 생성하고 실제 결과를 바로 확인할 수 있습니다.';
-                infoElement.style.background = 'var(--gray-50)';
-                infoElement.style.borderColor = 'var(--gray-200)';
-                button.innerHTML = `
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                    </svg>
-                    쿼리 생성 & 실행
-                `;
+            // budget 관련 필드도 포맷팅
+            if (key && key.toLowerCase().includes('budget')) {
+                const num = parseInt(value);
+                if (!isNaN(num)) {
+                    return num.toLocaleString('ko-KR') + '원';
+                }
             }
+            
+            return value || '';
         }
 
-        // 엔터 키로 쿼리 실행 및 이벤트 리스너 설정
-        document.addEventListener('DOMContentLoaded', function() {
-            // 쿼리 타입 변경 이벤트
-            document.getElementById('queryType').addEventListener('change', updateQueryTypeInfo);
+        // 예제 사용
+        function useExample(exampleText) {
+            document.getElementById('userInput').value = exampleText;
+            sendMessage();
+        }
+        
+        // 로딩 표시
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            const sendBtn = document.getElementById('sendBtn');
             
-            // 엔터 키 이벤트
-            document.getElementById('userInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && e.ctrlKey) {
-                    processQuery();
-                }
-            });
-            
-            // 초기 정보 표시
-            updateQueryTypeInfo();
-        });
+            loading.style.display = show ? 'flex' : 'none';
+            sendBtn.disabled = show;
+        }
+        
+        // 자동 높이 조절
+        function autoResize() {
+            const textarea = document.getElementById('userInput');
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+        
+        // 도움말 모달
+        function toggleHelp() {
+            const modal = document.getElementById('helpModal');
+            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+        }
+        
+        function closeHelp(event) {
+            if (!event || event.target === document.getElementById('helpModal')) {
+                document.getElementById('helpModal').style.display = 'none';
+            }
+        }
+        
+        // Contact Us 모달
+        function toggleContact() {
+            const modal = document.getElementById('contactModal');
+            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+        }
+        
+        function closeContact(event) {
+            if (!event || event.target === document.getElementById('contactModal')) {
+                document.getElementById('contactModal').style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html>

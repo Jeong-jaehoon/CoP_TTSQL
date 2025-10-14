@@ -1,66 +1,25 @@
-# 민감정보 파일들
-config.js
-wrangler.toml
-*.env
+# 환경변수 및 시크릿
+.dev.vars
 .env
 .env.local
-.env.development
 .env.production
 
-# API 키 관련 파일들
-api-keys.js
-keys.js
-secrets.js
+# Cloudflare 설정
+wrangler.toml
 
-# Cloudflare Workers 관련
+# 임시 파일
 .wrangler/
-wrangler.toml.bak
-
-# Node.js 관련
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-package-lock.json
-yarn.lock
-
-# 로그 파일들
 *.log
-logs/
-*.log.*
-
-# 임시 파일들
 *.tmp
-*.temp
+
+# 운영체제 파일
 .DS_Store
 Thumbs.db
 
-# 에디터 관련
+# IDE 설정
 .vscode/
 .idea/
-*.swp
-*.swo
 
-# 데이터베이스 관련
-*.db
-*.sqlite
-*.sqlite3
-
-# 백업 파일들
-*.bak
-*.backup
-*~
-
-# 개발 도구 관련
-.nyc_output/
-coverage/
-.jest/
-
-# OS 관련
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# 배포 파일
+dist/

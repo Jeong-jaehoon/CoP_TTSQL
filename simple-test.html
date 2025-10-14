@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>간단한 테스트</title>
+</head>
+<body>
+    <h1>간단한 API 테스트</h1>
+    <button onclick="test1()">테스트 1: 직접 fetch</button>
+    <button onclick="test2()">테스트 2: XMLHttpRequest</button>
+    <div id="result" style="margin-top: 20px; padding: 20px; background: #f0f0f0;"></div>
+
+    <script>
+        const resultDiv = document.getElementById('result');
+
+        function test1() {
+            resultDiv.innerHTML = '테스트 1 시작...<br>';
+            console.log('테스트 1 시작');
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+            fetch('http://127.0.0.1:8787/api/test', {
+                signal: controller.signal
+            })
+            .then(response => {
+                clearTimeout(timeoutId);
+                resultDiv.innerHTML += `응답 상태: ${response.status}<br>`;
+                console.log('응답:', response);
+                return response.json();
+            })
+            .then(data => {
+                resultDiv.innerHTML += `데이터: ${JSON.stringify(data)}<br>`;
+                console.log('데이터:', data);
+            })
+            .catch(error => {
+                clearTimeout(timeoutId);
+                resultDiv.innerHTML += `에러: ${error.message}<br>`;
+                console.error('에러:', error);
+            });
+        }
+
+        function test2() {
+            resultDiv.innerHTML = '테스트 2 시작...<br>';
+            console.log('테스트 2 시작');
+
+            const xhr = new XMLHttpRequest();
+            xhr.timeout = 5000;
+
+            xhr.onload = function() {
+                resultDiv.innerHTML += `응답 상태: ${xhr.status}<br>`;
+                resultDiv.innerHTML += `응답: ${xhr.responseText}<br>`;
+                console.log('응답:', xhr.responseText);
+            };
+
+            xhr.onerror = function() {
+                resultDiv.innerHTML += '네트워크 에러<br>';
+                console.error('네트워크 에러');
+            };
+
+            xhr.ontimeout = function() {
+                resultDiv.innerHTML += '타임아웃 (5초 초과)<br>';
+                console.error('타임아웃');
+            };
+
+            xhr.open('GET', 'http://127.0.0.1:8787/api/test');
+            xhr.send();
+        }
+    </script>
+</body>
+</html>

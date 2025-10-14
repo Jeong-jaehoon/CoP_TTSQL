@@ -1,0 +1,38 @@
+services:
+  ttsql:
+    # 로컬 이미지 사용 (이미 빌드된 경우)
+    image: ttsql:latest
+    # 또는 처음 실행시 빌드
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ttsql-app
+    ports:
+      - "8787:8787"   # Web interface
+      - "11434:11434" # Ollama API
+    volumes:
+      - ttsql-data:/app/.wrangler
+      - ollama-models:/root/.ollama
+    environment:
+      - NODE_ENV=production
+      - PORT=8787
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8787/api/test"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    # 메모리 제한 설정 (선택사항)
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 4G
+
+volumes:
+  ttsql-data:
+    driver: local
+  ollama-models:
+    driver: local
