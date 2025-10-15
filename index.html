@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="ngrok-skip-browser-warning" content="true">
     <title>IBK기업은행 X 뽑아조 - AI SQL Assistant</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
@@ -597,6 +598,7 @@
                 <span class="logo-text">IBK기업은행 X 뽑아조</span>
             </div>
             <div class="header-actions">
+                <button class="contact-btn" onclick="toggleSchema()">테이블 목록</button>
                 <button class="contact-btn" onclick="toggleContact()">Contact Us</button>
                 <button class="help-btn" onclick="toggleHelp()">?</button>
             </div>
@@ -612,17 +614,17 @@
             
             <!-- 예제 쿼리 -->
             <div class="examples">
-                <div class="example-card" onclick="useExample('급여가 5000만원 이상인 직원들의 이름과 부서를 보여주세요')">
-                    💰 급여가 5000만원 이상인 직원들
+                <div class="example-card" onclick="useExample('개발본부 직원들 보여줘')">
+                    👨‍💻 개발본부 직원 조회
                 </div>
-                <div class="example-card" onclick="useExample('부서별 평균 급여를 계산해주세요')">
-                    📊 부서별 평균 급여
+                <div class="example-card" onclick="useExample('급여가 높은 직원 3명')">
+                    💰 급여 상위 3명
                 </div>
-                <div class="example-card" onclick="useExample('2023년에 입사한 직원 수는 몇 명인가요?')">
-                    👥 2023년 신입사원 수
+                <div class="example-card" onclick="useExample('2023년에 입사한 직원들')">
+                    📅 2023년 입사자
                 </div>
-                <div class="example-card" onclick="useExample('종료일이 없는 프로젝트 목록을 보여주세요')">
-                    🚀 진행 중인 프로젝트
+                <div class="example-card" onclick="useExample('부서별 직원 수')">
+                    📊 부서별 직원 수
                 </div>
             </div>
         </div>
@@ -635,9 +637,9 @@
             
             <div class="loading" id="loading">
                 <div class="loading-spinner"></div>
-                <div class="loading-text">
-                    AI가 SQL을 생성하고 있어요...<br>
-                    <span style="font-size: 0.8rem; color: var(--text-secondary);">잠시만 기다려주세요 (약 5-10초 소요)</span>
+                <div class="loading-text" id="loadingText">
+                    🤖 AI가 SQL을 생성하고 있어요...<br>
+                    <span style="font-size: 0.8rem; color: var(--text-secondary);">잠시만 기다려주세요</span>
                 </div>
             </div>
             
@@ -700,7 +702,7 @@
         <div class="contact-content" onclick="event.stopPropagation()">
             <button class="contact-close" onclick="closeContact()">&times;</button>
             <h2 class="contact-title">Contact Us</h2>
-            
+
             <div class="contact-info">
                 <div class="contact-item">
                     <div class="contact-icon">🏢</div>
@@ -709,7 +711,7 @@
                         <div class="contact-value">AI&Tech센터</div>
                     </div>
                 </div>
-                
+
                 <div class="contact-item">
                     <div class="contact-icon">👨‍💼</div>
                     <div class="contact-details">
@@ -717,7 +719,7 @@
                         <div class="contact-value">담당자</div>
                     </div>
                 </div>
-                
+
                 <div class="contact-item">
                     <div class="contact-icon">📧</div>
                     <div class="contact-details">
@@ -727,7 +729,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="contact-item">
                     <div class="contact-icon">📱</div>
                     <div class="contact-details">
@@ -738,13 +740,105 @@
                     </div>
                 </div>
             </div>
-            
+
             <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 1rem;">
                 뽑아조 사용 중 문의사항이나 개선 요청이 있으시면 언제든 연락해 주세요! 💙
             </p>
         </div>
     </div>
-    
+
+    <!-- 테이블 목록 모달 -->
+    <div class="contact-modal" id="schemaModal" onclick="closeSchema(event)">
+        <div class="help-content" onclick="event.stopPropagation()" style="max-width: 800px;">
+            <button class="contact-close" onclick="closeSchema()">&times;</button>
+            <h2 class="contact-title">📊 데이터베이스 테이블 목록</h2>
+
+            <div class="help-section">
+                <h3>1. 👥 employees (직원 정보)</h3>
+                <p style="font-size: 0.85rem; line-height: 1.5;">
+                    <strong>주요 컬럼:</strong> id, employee_number(사번), name, department_id(부서ID), position(직급), job_title(직책), salary(급여), hire_date(입사일), manager_id(상사ID), performance_score(성과점수)<br>
+                    <strong>설명:</strong> 직원의 기본 정보, 급여, 성과 등을 관리하는 핵심 테이블
+                </p>
+            </div>
+
+            <div class="help-section">
+                <h3>2. 🏢 departments (부서 정보)</h3>
+                <p style="font-size: 0.85rem; line-height: 1.5;">
+                    <strong>주요 컬럼:</strong> id, dept_code(부서코드), name(부서명), parent_dept_id(상위부서ID), dept_level(부서레벨), manager_id(부서장ID), budget(예산), employee_count(직원수)<br>
+                    <strong>설명:</strong> 부서 계층 구조 및 예산 정보를 관리
+                </p>
+            </div>
+
+            <div class="help-section">
+                <h3>3. 🚀 projects (프로젝트 정보)</h3>
+                <p style="font-size: 0.85rem; line-height: 1.5;">
+                    <strong>주요 컬럼:</strong> id, project_code(프로젝트코드), name, client(고객사), status(상태), start_date, end_date, budget(예산), pm_id(PM ID), completion_rate(진행률)<br>
+                    <strong>설명:</strong> 진행 중이거나 완료된 프로젝트 정보 관리
+                </p>
+            </div>
+
+            <div class="help-section">
+                <h3>4. 👨‍💻 project_members (프로젝트 참여자)</h3>
+                <p style="font-size: 0.85rem; line-height: 1.5;">
+                    <strong>주요 컬럼:</strong> project_id, employee_id, role(역할), participation_rate(투입률), work_hours(투입시간), contribution_score(기여도)<br>
+                    <strong>설명:</strong> 프로젝트별 참여 직원 및 역할 정보
+                </p>
+            </div>
+
+            <div class="help-section">
+                <h3>5. 💰 salary_payments (급여 지급 내역)</h3>
+                <p style="font-size: 0.85rem; line-height: 1.5;">
+                    <strong>주요 컬럼:</strong> employee_id, payment_date, year_month, base_salary(기본급), bonus(보너스), overtime_pay(야근수당), total_payment(실지급액)<br>
+                    <strong>설명:</strong> 월별 급여 지급 상세 내역
+                </p>
+            </div>
+
+            <div class="help-section">
+                <h3>6. 📅 attendance (근태 기록)</h3>
+                <p style="font-size: 0.85rem; line-height: 1.5;">
+                    <strong>주요 컬럼:</strong> employee_id, work_date, check_in_time(출근시각), check_out_time(퇴근시각), work_hours, status(상태), leave_type(휴가종류)<br>
+                    <strong>설명:</strong> 직원별 출퇴근 및 근무 시간 기록
+                </p>
+            </div>
+
+            <div class="help-section">
+                <h3>7. 🏖️ leave_requests (휴가 신청)</h3>
+                <p style="font-size: 0.85rem; line-height: 1.5;">
+                    <strong>주요 컬럼:</strong> employee_id, leave_type(연차/병가/경조사), start_date, end_date, days(사용일수), status(대기/승인/반려)<br>
+                    <strong>설명:</strong> 휴가 신청 및 승인 내역
+                </p>
+            </div>
+
+            <div class="help-section">
+                <h3>8. 📊 performance_reviews (평가 기록)</h3>
+                <p style="font-size: 0.85rem; line-height: 1.5;">
+                    <strong>주요 컬럼:</strong> employee_id, review_period(평가기간), performance_score, competency_score, grade(등급), promotion_recommended(승진추천)<br>
+                    <strong>설명:</strong> 직원 성과 평가 및 등급 정보
+                </p>
+            </div>
+
+            <div class="help-section">
+                <h3>9. 📚 training_records (교육 이수 기록)</h3>
+                <p style="font-size: 0.85rem; line-height: 1.5;">
+                    <strong>주요 컬럼:</strong> employee_id, training_name, training_type, start_date, end_date, completion_rate(이수율), skills_acquired(습득기술)<br>
+                    <strong>설명:</strong> 직원 교육 이수 및 자격증 정보
+                </p>
+            </div>
+
+            <div class="help-section">
+                <h3>10. 💻 assets (자산 관리)</h3>
+                <p style="font-size: 0.85rem; line-height: 1.5;">
+                    <strong>주요 컬럼:</strong> asset_code, asset_name, asset_type(노트북/데스크탑 등), assigned_to(사용자), status(정상/수리중/폐기)<br>
+                    <strong>설명:</strong> 회사 자산(장비) 할당 및 상태 관리
+                </p>
+            </div>
+
+            <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 1.5rem; padding: 1rem; background: var(--ibk-light); border-radius: 8px;">
+                💡 <strong>Tip:</strong> 테이블 간 관계를 활용한 복잡한 쿼리도 자연어로 질문하면 뽑아조가 자동으로 JOIN 쿼리를 생성해드립니다!
+            </p>
+        </div>
+    </div>
+
     <script src="config.js"></script>
     <script src="api.js"></script>
     <script>
@@ -839,11 +933,11 @@
             if (data && data.length > 0) {
                 const tableDiv = document.createElement('div');
                 tableDiv.className = 'result-table';
-                
+
                 const table = document.createElement('table');
                 const thead = document.createElement('thead');
                 const tbody = document.createElement('tbody');
-                
+
                 // 헤더
                 const headerRow = document.createElement('tr');
                 Object.keys(data[0]).forEach(key => {
@@ -852,7 +946,7 @@
                     headerRow.appendChild(th);
                 });
                 thead.appendChild(headerRow);
-                
+
                 // 데이터
                 data.forEach(row => {
                     const tr = document.createElement('tr');
@@ -863,11 +957,17 @@
                     });
                     tbody.appendChild(tr);
                 });
-                
+
                 table.appendChild(thead);
                 table.appendChild(tbody);
                 tableDiv.appendChild(table);
                 contentDiv.appendChild(tableDiv);
+            } else if (sql && data && data.length === 0) {
+                // SQL은 생성되었지만 결과가 없는 경우
+                const noResultDiv = document.createElement('div');
+                noResultDiv.style.cssText = 'margin-top: 1rem; padding: 1rem; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; color: #856404; text-align: center;';
+                noResultDiv.textContent = '📭 조회 결과가 없습니다';
+                contentDiv.appendChild(noResultDiv);
             }
             
             messageDiv.appendChild(contentDiv);
@@ -904,13 +1004,43 @@
             sendMessage();
         }
         
-        // 로딩 표시
+        // 로딩 표시 (단계별)
+        let loadingStep = 0;
+        let loadingInterval = null;
+
         function showLoading(show) {
             const loading = document.getElementById('loading');
+            const loadingText = document.getElementById('loadingText');
             const sendBtn = document.getElementById('sendBtn');
-            
-            loading.style.display = show ? 'flex' : 'none';
-            sendBtn.disabled = show;
+
+            if (show) {
+                loadingStep = 0;
+                loading.style.display = 'flex';
+                sendBtn.disabled = true;
+
+                // 단계별 메시지
+                const steps = [
+                    '🤖 AI가 쿼리를 분석하고 있어요...',
+                    '💡 SQL 쿼리를 생성하고 있어요...',
+                    '⚡ 데이터베이스 쿼리 실행 중...',
+                    '📊 결과를 불러오고 있어요...'
+                ];
+
+                loadingText.innerHTML = steps[0] + '<br><span style="font-size: 0.8rem; color: var(--text-secondary);">잠시만 기다려주세요</span>';
+
+                // 1.5초마다 다음 단계로
+                loadingInterval = setInterval(() => {
+                    loadingStep = (loadingStep + 1) % steps.length;
+                    loadingText.innerHTML = steps[loadingStep] + '<br><span style="font-size: 0.8rem; color: var(--text-secondary);">잠시만 기다려주세요</span>';
+                }, 1500);
+            } else {
+                loading.style.display = 'none';
+                sendBtn.disabled = false;
+                if (loadingInterval) {
+                    clearInterval(loadingInterval);
+                    loadingInterval = null;
+                }
+            }
         }
         
         // 자동 높이 조절
@@ -937,10 +1067,22 @@
             const modal = document.getElementById('contactModal');
             modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
         }
-        
+
         function closeContact(event) {
             if (!event || event.target === document.getElementById('contactModal')) {
                 document.getElementById('contactModal').style.display = 'none';
+            }
+        }
+
+        // 테이블 목록 모달
+        function toggleSchema() {
+            const modal = document.getElementById('schemaModal');
+            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function closeSchema(event) {
+            if (!event || event.target === document.getElementById('schemaModal')) {
+                document.getElementById('schemaModal').style.display = 'none';
             }
         }
     </script>

@@ -16,6 +16,7 @@ COPY config.js .
 COPY api.js .
 COPY index.html .
 COPY *.sql ./
+COPY images/ ./images/
 
 # Final stage with Ollama
 FROM debian:bookworm-slim

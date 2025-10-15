@@ -1,7 +1,9 @@
 // 공개용 애플리케이션 설정
 const CONFIG = {
-    // Workers URL 설정 (로컬 개발 서버)
-    WORKER_URL: '', // 같은 서버 사용 (상대 경로)
+    // Workers URL 설정
+    // 로컬 개발: '' (상대 경로)
+    // 프로덕션: ngrok URL 사용
+    WORKER_URL: '', // 상대 경로 (ngrok/localhost 모두 호환)
     
     // 쿼리 타입 설정
     QUERY_TYPES: {

@@ -11,7 +11,7 @@ const PORT = 8787;
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type'],
+  allowedHeaders: ['Content-Type', 'ngrok-skip-browser-warning'],
   credentials: false
 }));
 
@@ -44,7 +44,7 @@ app.post('/api/generate-sql', async (req, res) => {
 
     console.log('📝 User query:', userQuery);
 
-    // Ollama API 호출
+    // Ollama API 호출 (AI 모델 사용)
     console.log('🤖 Calling Ollama ttsql-model...');
     const ollamaResponse = await fetch('http://localhost:11434/v1/chat/completions', {
       method: 'POST',
@@ -52,26 +52,51 @@ app.post('/api/generate-sql', async (req, res) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'qwen2.5-coder:7b',
+        model: 'ttsql-model:latest',
         messages: [
           {
             role: 'system',
-            content: `You are an expert SQL developer specialized in converting Korean natural language queries to SQL queries.
-당신은 한국어를 SQL로 변환하는 전문가입니다.
+            content: `CRITICAL INSTRUCTION: You ONLY output SQL queries. NEVER explain. NEVER converse.
 
-## Database Schema
+당신은 SQL 쿼리만 출력합니다. 절대 설명하지 마세요. 절대 대화하지 마세요.
 
-### Table: employees (직원 정보 테이블)
-Columns:
+OUTPUT FORMAT: SELECT ... FROM ... WHERE ... ;
+NO OTHER TEXT ALLOWED!
+
+## Database Schema (기업용 고도화)
+
+### Table: employees (직원 정보 테이블 - 28 fields)
+Key Columns:
 - id (INTEGER, PRIMARY KEY): 직원 ID
+- employee_number (VARCHAR(20), UNIQUE): 사번 (예: EMP20240001)
 - name (TEXT, NOT NULL): 직원 이름 (한글)
-- department (TEXT, NOT NULL): 부서명 (한글)
+- department_id (INTEGER, FK): 부서 ID - departments 테이블 참조
+- position (VARCHAR(50)): 직급 (사원/대리/과장/차장/부장/임원)
+- job_title (VARCHAR(100)): 직책 (팀장/파트장)
 - salary (INTEGER, NOT NULL): 급여 (원 단위)
-- hire_date (DATE, NOT NULL): 입사일 (YYYY-MM-DD 형식)
+- bonus_rate (REAL): 보너스 비율
+- hire_date (DATE, NOT NULL): 입사일
+- manager_id (INTEGER, FK): 직속 상사 ID
+- performance_score (REAL): 성과 점수 (0-100)
+
+### Table: departments (부서 정보 테이블 - 계층 구조)
+Key Columns:
+- id (INTEGER, PRIMARY KEY): 부서 ID
+- dept_code (VARCHAR(20), UNIQUE): 부서 코드
+- name (TEXT, NOT NULL): 부서명 (한글)
+- parent_dept_id (INTEGER, FK): 상위 부서 ID (계층 구조)
+- dept_level (INTEGER): 부서 레벨 (1=본부, 2=팀, 3=파트)
+- manager_id (INTEGER, FK): 부서장 ID
+- budget (INTEGER): 예산
+- employee_count (INTEGER): 소속 직원 수
+
+### Important: 부서명 조회 시 JOIN 필수
+❌ 잘못된 예: SELECT name, department FROM employees WHERE department = '개발팀';
+✅ 올바른 예: SELECT e.name, d.name as department FROM employees e JOIN departments d ON e.department_id = d.id WHERE d.name = '개발팀';
 
 ## Important Rules
 
-1. **Database Type**: SQLite
+1. **Database Type**: SQLite (MUST use SQLite-specific syntax)
 2. **Korean Currency Conversion** (CRITICAL - NEVER GET THIS WRONG):
    - 1만원 = 10000 (four zeros: 0000)
    - 100만원 = 1000000 (six zeros: 000000)
@@ -84,20 +109,46 @@ Columns:
    - **FORMULA**: X천만원 = X * 10000000 (X times ten million)
    - **FORMULA**: X백만원 = X * 1000000 (X times one million)
    - **FORMULA**: X만원 = X * 10000 (X times ten thousand)
-3. **Response Format**: ONLY return ONE SQL query, NO explanations, NO multiple statements
-4. **Query Type**: Only SELECT queries are allowed
-5. **Korean Support**: Understand Korean queries and generate appropriate SQL
+3. **SQLite-Specific Date Functions** (CRITICAL):
+   - ❌ NEVER use: YEAR(), MONTH(), DAY() - These do NOT exist in SQLite
+   - ✅ ALWAYS use: strftime() function for date operations
+   - Year extraction: strftime('%Y', hire_date)
+   - Month extraction: strftime('%m', hire_date)
+   - Day extraction: strftime('%d', hire_date)
+   - Date comparison: Use string comparison or strftime()
+   - Example: WHERE strftime('%Y', hire_date) = '2023'
+   - Example: WHERE hire_date >= '2023-01-01' AND hire_date < '2024-01-01'
+4. **Other SQLite-Specific Functions**:
+   - String concatenation: Use || operator (e.g., name || ' ' || department)
+   - No CONCAT() function in SQLite
+   - Use IFNULL() instead of COALESCE() when possible
+   - LIMIT clause is supported and preferred for row limiting
+5. **Response Format**: ONLY return ONE SQL query, NO explanations, NO multiple statements
+6. **Query Type**: Only SELECT queries are allowed
+7. **Korean Support**: Understand Korean queries and generate appropriate SQL
 
-## Example Queries
+## Example Queries (신 스키마 - JOIN 사용)
 
 Korean: "급여가 5천만원 이상인 직원"
-SQL: SELECT name, department, salary FROM employees WHERE salary >= 50000000;
+SQL: SELECT e.name, e.salary, d.name as department FROM employees e LEFT JOIN departments d ON e.department_id = d.id WHERE e.salary >= 50000000;
 
 Korean: "개발팀 직원 목록"
-SQL: SELECT name, salary, hire_date FROM employees WHERE department = '개발팀';
+SQL: SELECT e.name, e.salary, e.hire_date, d.name as department FROM employees e JOIN departments d ON e.department_id = d.id WHERE d.name LIKE '%개발%';
 
 Korean: "급여가 높은 직원 5명"
-SQL: SELECT name, department, salary FROM employees ORDER BY salary DESC LIMIT 5;
+SQL: SELECT e.name, e.position, e.salary, d.name as department FROM employees e LEFT JOIN departments d ON e.department_id = d.id ORDER BY e.salary DESC LIMIT 5;
+
+Korean: "부서별 평균 급여"
+SQL: SELECT d.name as department, AVG(e.salary) as avg_salary FROM employees e JOIN departments d ON e.department_id = d.id GROUP BY d.name;
+
+Korean: "2023년에 입사한 직원"
+SQL: SELECT e.name, d.name as department, e.hire_date FROM employees e LEFT JOIN departments d ON e.department_id = d.id WHERE strftime('%Y', e.hire_date) = '2023';
+
+Korean: "부장급 이상 직원"
+SQL: SELECT e.name, e.position, e.salary, d.name as department FROM employees e LEFT JOIN departments d ON e.department_id = d.id WHERE e.position IN ('부장', '임원', '대표이사', '부사장');
+
+Korean: "직급별 평균 급여"
+SQL: SELECT position, AVG(salary) as avg_salary, COUNT(*) as count FROM employees GROUP BY position ORDER BY avg_salary DESC;
 
 CRITICAL: Output ONLY the SQL query with a semicolon at the end. NO explanations!`
           },
@@ -106,8 +157,10 @@ CRITICAL: Output ONLY the SQL query with a semicolon at the end. NO explanations
             content: userQuery
           }
         ],
-        max_tokens: 200,
-        temperature: 0.1
+        max_tokens: 150,
+        temperature: 0.0,
+        top_p: 0.1,
+        top_k: 1
       })
     });
 
@@ -134,6 +187,11 @@ CRITICAL: Output ONLY the SQL query with a semicolon at the end. NO explanations
     }
 
     console.log('✅ Generated SQL:', sql);
+
+    // AI가 제대로 SQL을 생성하지 못한 경우 에러 처리
+    if (!sql || !sql.toLowerCase().startsWith('select')) {
+      throw new Error('AI failed to generate valid SQL query');
+    }
 
     // SQL 실행
     const stmt = db.prepare(sql);
@@ -186,6 +244,43 @@ app.get('/api/schema', (req, res) => {
     schema
   });
 });
+
+// 규칙 기반 SQL 생성 함수
+function generateRuleBasedSQL(userQuery) {
+  const query = userQuery.toLowerCase();
+
+  // 부서로 시작하는 패턴 (우선순위 높음)
+  if (query.includes('부서가') && query.includes('시작')) {
+    const match = query.match(/['"]([^'"]+)['"]/);
+    const deptPattern = match ? match[1] : '개발';
+    return `SELECT e.name, e.salary, e.hire_date, d.name as department FROM employees e LEFT JOIN departments d ON e.department_id = d.id WHERE d.name LIKE '${deptPattern}%';`;
+  }
+
+  // 개발 관련 (팀, 본부 모두 포함)
+  if (query.includes('개발')) {
+    return "SELECT e.name, e.salary, e.hire_date, d.name as department FROM employees e LEFT JOIN departments d ON e.department_id = d.id WHERE d.name LIKE '%개발%';";
+  }
+
+  // 급여 높은 순
+  if (query.includes('급여') && (query.includes('높은') || query.includes('상위'))) {
+    const limitMatch = query.match(/(\d+)명/);
+    const limit = limitMatch ? limitMatch[1] : '5';
+    return `SELECT e.name, e.position, e.salary, d.name as department FROM employees e LEFT JOIN departments d ON e.department_id = d.id ORDER BY e.salary DESC LIMIT ${limit};`;
+  }
+
+  // 전체 직원
+  if (query.includes('모든') || (query.includes('전체') && query.includes('직원'))) {
+    return "SELECT e.name, e.salary, d.name as department FROM employees e LEFT JOIN departments d ON e.department_id = d.id LIMIT 10;";
+  }
+
+  // 전체 프로젝트
+  if (query.includes('프로젝트') && (query.includes('모든') || query.includes('전체'))) {
+    return "SELECT * FROM projects;";
+  }
+
+  // 기본
+  return "SELECT e.name, e.salary, d.name as department FROM employees e LEFT JOIN departments d ON e.department_id = d.id LIMIT 10;";
+}
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);

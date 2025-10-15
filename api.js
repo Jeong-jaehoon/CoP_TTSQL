@@ -42,16 +42,20 @@ SQL:`;
     async testConnection() {
         try {
             console.log('🔍 Workers API 연결 확인 중...');
-            const response = await fetch(`${this.workerUrl}/api/test`);
-            
+            const response = await fetch(`${this.workerUrl}/api/test`, {
+                headers: {
+                    'ngrok-skip-browser-warning': 'true'
+                }
+            });
+
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
-            
+
             const data = await response.json();
             console.log('✅ Workers API 연결 성공');
             return data;
-            
+
         } catch (error) {
             console.warn('⚠️ Workers API 연결 실패 - 폴백 모드로 진행됩니다');
             throw error;
@@ -73,6 +77,7 @@ SQL:`;
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json; charset=utf-8',
+                        'ngrok-skip-browser-warning': 'true'
                     },
                     body: JSON.stringify({
                         userQuery: userQuery
